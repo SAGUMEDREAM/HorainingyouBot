@@ -73,9 +73,9 @@ public class CorePlugin extends BotPlugin {
 
     @Override
     public int onAnyMessage(Bot bot, AnyMessageEvent event) {
-//        if (Constants.DEV_MODE && !isDevUser(bot, event)) {
-//            return MESSAGE_BLOCK;
-//        }
+        if (Constants.DEV_MODE && !isDevUser(bot, event)) {
+            return MESSAGE_BLOCK;
+        }
 //        System.out.println("==");
 //        System.out.println(event.getArrayMsg());
 //        System.out.println(event.getRawMessage());

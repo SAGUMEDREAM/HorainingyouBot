@@ -5,7 +5,6 @@ import cc.thonly.horainingyoubot.command.CommandNode;
 import cc.thonly.horainingyoubot.command.Commands;
 import cc.thonly.horainingyoubot.config.BotProperties;
 import cc.thonly.horainingyoubot.event.internal.EventBusFactory;
-import cc.thonly.horainingyoubot.plugin.JPluginLoader;
 import cc.thonly.horainingyoubot.browser.CSSTools;
 import com.microsoft.playwright.*;
 import com.mikuac.shiro.common.utils.ArrayMsgUtils;

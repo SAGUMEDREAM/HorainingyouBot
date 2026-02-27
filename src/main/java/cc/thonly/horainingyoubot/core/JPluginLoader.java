@@ -1,6 +1,5 @@
-package cc.thonly.horainingyoubot.plugin;
+package cc.thonly.horainingyoubot.core;
 
-import cc.thonly.horainingyoubot.core.SpringContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Component;
@@ -35,6 +34,7 @@ public class JPluginLoader {
 
                     JPlugin jPlugin = (JPlugin) instance;
                     this.id2plugin.put(jPlugin.getPluginId(), jPlugin);
+                    log.info("Preparing plugin {}", jPlugin.getPluginId());
                     break;
                 }
             } catch (Exception e) {
@@ -42,7 +42,12 @@ public class JPluginLoader {
             }
         }
         this.id2plugin.forEach((id, jPlugin) -> {
-            jPlugin.onInitialize();
+            try {
+                jPlugin.onInitialize();
+                log.info("Loaded plugin {}", jPlugin.getPluginId());
+            } catch (Exception e) {
+                log.error("Can't load plugin {}", jPlugin.getPluginId(), e);
+            }
         });
     }
 
@@ -50,7 +55,7 @@ public class JPluginLoader {
         AutowireCapableBeanFactory factory =
                 SpringContextHolder.getBeanFactory();
 
-        for (JPlugin plugin : id2plugin.values()) {
+        for (JPlugin plugin : this.id2plugin.values()) {
             try {
                 factory.destroyBean(plugin);
             } catch (Exception e) {
@@ -58,7 +63,7 @@ public class JPluginLoader {
             }
         }
 
-        id2plugin.clear();
+        this.id2plugin.clear();
     }
 
     public Set<Map.Entry<String, JPlugin>> entries() {
