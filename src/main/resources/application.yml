@@ -1,0 +1,37 @@
+#file: noinspection SpringBootApplicationYaml
+server:
+  port: 9920
+
+spring:
+  main:
+    allow-circular-references: true
+  config:
+    import:
+      - optional:file:./config/bot.yml
+  application:
+    name: HorainingyouBot
+  datasource:
+    url: jdbc:sqlite:bot-data.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  output:
+    ansi:
+      enabled: always
+
+shiro:
+  plugin-list:
+    - cc.thonly.horainingyoubot.core.CorePlugin
+  ws:
+    timeout: 10
+    access-token: "88888888"
+    client:
+      enable: true
+      url: "ws://127.0.0.1:8996"
+
+logging:
+  pattern:
+    console: "%clr(%d{HH:mm:ss}){cyan} %clr(%-5level) %msg%n"
