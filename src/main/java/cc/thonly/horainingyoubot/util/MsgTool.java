@@ -1,10 +1,13 @@
 package cc.thonly.horainingyoubot.util;
 
 import cc.thonly.horainingyoubot.data.db.User;
+import cc.thonly.horainingyoubot.event.internal.EventResult;
 import com.mikuac.shiro.common.utils.ArrayMsgUtils;
 import com.mikuac.shiro.common.utils.MsgUtils;
 import com.mikuac.shiro.common.utils.ShiroUtils;
 import com.mikuac.shiro.core.Bot;
+import com.mikuac.shiro.dto.action.common.ActionData;
+import com.mikuac.shiro.dto.action.response.MsgResp;
 import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
 import com.mikuac.shiro.enums.MsgTypeEnum;
 import com.mikuac.shiro.model.ArrayMsg;
@@ -49,6 +52,37 @@ public class MsgTool {
         return HttpClients.custom()
                 .setSSLSocketFactory(sslSocketFactory)
                 .build();
+    }
+
+    public static Integer getReplyMessageId(Bot bot, AnyMessageEvent event) {
+        List<ArrayMsg> arrayMsg = event.getArrayMsg();
+        ArrayMsg first = arrayMsg.getFirst();
+        if (!Objects.equals(first.getType(), MsgTypeEnum.reply)) {
+            return null;
+        }
+        JsonNode data = first.getData();
+        if (!Objects.equals(first.getType(), MsgTypeEnum.reply)) {
+            return null;
+        }
+        String messageIdStr = data.get("id").asString();
+        return Integer.parseInt(messageIdStr);
+    }
+
+    public static Long getReplyTarget(Bot bot, AnyMessageEvent event) {
+        List<ArrayMsg> arrayMsg = event.getArrayMsg();
+        ArrayMsg first = arrayMsg.getFirst();
+        if (!Objects.equals(first.getType(), MsgTypeEnum.reply)) {
+            return null;
+        }
+        JsonNode data = first.getData();
+        if (!Objects.equals(first.getType(), MsgTypeEnum.reply)) {
+            return null;
+        }
+        String messageIdStr = data.get("id").asString();
+        int messageId = Integer.parseInt(messageIdStr);
+        ActionData<MsgResp> msg = bot.getMsg(messageId);
+        MsgResp msgRespData = msg.getData();
+        return msgRespData.getUserId();
     }
 
     public static boolean isAtBot(ArrayMsg msg, Bot bot) {
@@ -111,7 +145,7 @@ public class MsgTool {
                 return inputStream.readAllBytes();
             }
         } catch (Exception e) {
-            log.error("Download error: ",e);
+            log.error("Download error: ", e);
             return null;
         }
     }

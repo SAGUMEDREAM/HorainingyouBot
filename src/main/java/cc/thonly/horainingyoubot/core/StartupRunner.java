@@ -7,6 +7,7 @@ import cc.thonly.horainingyoubot.config.BotProperties;
 import cc.thonly.horainingyoubot.controller.TempFileController;
 import cc.thonly.horainingyoubot.event.internal.EventBusFactory;
 import cc.thonly.horainingyoubot.browser.CSSTools;
+import cc.thonly.horainingyoubot.util.DeferTask;
 import com.microsoft.playwright.*;
 import com.mikuac.shiro.common.utils.ArrayMsgUtils;
 import com.vladsch.flexmark.html.HtmlRenderer;
@@ -55,6 +56,7 @@ public class StartupRunner implements CommandLineRunner {
                 Files.createDirectory(path);
             }
         }
+        DeferTask.TASKS.clear();
         this.tempFileController.clear();
         EventBusFactory.clear();
         this.commands.drops();

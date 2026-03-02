@@ -3,17 +3,24 @@ package cc.thonly.horainingyoubot.plugin.essential_bot;
 import cc.thonly.horainingyoubot.command.Commands;
 import cc.thonly.horainingyoubot.core.CoreEvent;
 import cc.thonly.horainingyoubot.core.JPlugin;
+import cc.thonly.horainingyoubot.data.db.User;
 import cc.thonly.horainingyoubot.event.PokeEvent;
+import cc.thonly.horainingyoubot.event.ReceiveAnyEvent;
 import cc.thonly.horainingyoubot.event.ReceiveAnyReplyEvent;
 import cc.thonly.horainingyoubot.event.internal.BotEventListener;
 import cc.thonly.horainingyoubot.event.internal.EventResult;
 import cc.thonly.horainingyoubot.plugin.essential_bot.command.*;
+import cc.thonly.horainingyoubot.service.UserManagerImpl;
 import cc.thonly.horainingyoubot.util.MsgTool;
 import com.mikuac.shiro.core.Bot;
+import com.mikuac.shiro.dto.action.common.ActionData;
+import com.mikuac.shiro.dto.action.response.MsgResp;
 import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
 import com.mikuac.shiro.dto.event.notice.PokeNoticeEvent;
+import com.mikuac.shiro.enums.MsgTypeEnum;
 import com.mikuac.shiro.model.ArrayMsg;
 import org.springframework.beans.factory.annotation.Autowired;
+import tools.jackson.databind.JsonNode;
 
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +35,9 @@ public class EssentialBot implements JPlugin {
 
     @Autowired
     Commands commands;
+
+    @Autowired
+    UserManagerImpl userManager;
 
     @Override
     public void onInitialize() {
@@ -67,6 +77,53 @@ public class EssentialBot implements JPlugin {
                 pokeLock.set(false);
             }, 30, TimeUnit.SECONDS);
             return EventResult.BLOCKING;
+        });
+        CoreEvent.RECEIVE_ANY_REPLY.register(event -> {
+            Bot bot = event.getBot();
+            AnyMessageEvent anyMessageEvent = event.getEvent();
+            List<ArrayMsg> arrayMsg = anyMessageEvent.getArrayMsg();
+            ArrayMsg first = arrayMsg.getFirst();
+            JsonNode data = first.getData();
+            if (!Objects.equals(first.getType(), MsgTypeEnum.reply)) {
+                return EventResult.PASS;
+            }
+            String messageIdStr = data.get("id").asString();
+            int messageId = Integer.parseInt(messageIdStr);
+            ActionData<MsgResp> msg = bot.getMsg(messageId);
+            MsgResp msgRespData = msg.getData();
+            Long userId = msgRespData.getUserId();
+            if (!Objects.equals(userId, bot.getSelfId())) {
+                return EventResult.PASS;
+            }
+            String listCQ = MsgTool.toListCQ(anyMessageEvent.getArrayMsg());
+            if (listCQ.contains("不可以") || listCQ.contains("!d") || listCQ.contains("！D") || listCQ.contains("！d") || listCQ.contains("!D") || listCQ.contains("/闭嘴")) {
+                User user = this.userManager.getOrCreate(anyMessageEvent);
+                if (!user.hasPermissionLevel(2)) {
+                    bot.sendMsg(anyMessageEvent, "哼,你管得着咱吗!?", false);
+                    return EventResult.PASS;
+                }
+                bot.deleteMsg(messageId);
+                bot.sendMsg(anyMessageEvent, "咱再也不乱说话了", false);
+                return EventResult.BLOCKING;
+            }
+            return EventResult.PASS;
+        });
+        CoreEvent.RECEIVE_ANY.register(event -> {
+            Bot bot = event.getBot();
+            AnyMessageEvent anyMessageEvent = event.getEvent();
+            List<ArrayMsg> arrayMsgList = anyMessageEvent.getArrayMsg();
+
+            if (!arrayMsgList.isEmpty()) {
+                ArrayMsg first = arrayMsgList.getFirst();
+                if (MsgTypeEnum.text == first.getType()) {
+                    JsonNode textNode = first.getData().get("text");
+                    if (textNode.isString() &&
+                            textNode.asString().toLowerCase().startsWith("owlpenguinparrot")) {
+                        bot.sendMsg(anyMessageEvent, "干什么", false);
+                    }
+                }
+            }
+            return EventResult.PASS;
         });
     }
 

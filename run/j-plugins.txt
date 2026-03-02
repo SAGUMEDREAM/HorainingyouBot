@@ -1,1 +1,2 @@
 cc.thonly.horainingyoubot.plugin.essential_bot.EssentialBot
+cc.thonly.horainingyoubot.plugin.intelligence_agencies.IntelligenceAgencies
