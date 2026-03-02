@@ -3,6 +3,7 @@ package cc.thonly.horainingyoubot.service;
 import cc.thonly.horainingyoubot.command.*;
 import cc.thonly.horainingyoubot.command.internal.CommandEula;
 import cc.thonly.horainingyoubot.data.CommandResult;
+import cc.thonly.horainingyoubot.data.db.Group;
 import cc.thonly.horainingyoubot.data.db.User;
 import com.mikuac.shiro.common.utils.ArrayMsgUtils;
 import com.mikuac.shiro.core.Bot;
@@ -12,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @SuppressWarnings("ALL")
 @Service
@@ -23,7 +26,7 @@ public class MessageHandlerImpl {
     @Autowired
     UserManagerImpl userManager;
 
-    public CommandResult accept(Bot bot, @Nullable User user, AnyMessageEvent event) {
+    public CommandResult accept(Bot bot, @Nullable User user, @Nullable Group group, AnyMessageEvent event) {
         CommandSession commandSession = this.commands.parseForCommand(bot, event);
         if (commandSession == null) {
             return CommandResult.PASS;
@@ -34,7 +37,7 @@ public class MessageHandlerImpl {
         if (executor == null) {
             return CommandResult.PASS;
         }
-        if (user != null && !node.hasPermissionLevel(user)) {
+        if (user != null && (!node.hasPermissionLevel(user) && Objects.equals(node.getPredicate().test(bot, user, group), false))) {
             return CommandResult.NO_PERMISSION;
         }
         if (!user.hasAcceptedEula() && !node.isEulaNoCheck()) {
@@ -44,7 +47,7 @@ public class MessageHandlerImpl {
         try {
             executor.execute(bot, event, arguments);
         } catch (Exception e) {
-            log.error("Error in handle command {}: ", event.getRawMessage(),e);
+            log.error("Error in handle command {}: ", event.getRawMessage(), e);
         }
         return CommandResult.SUCCESS;
     }
@@ -63,7 +66,7 @@ public class MessageHandlerImpl {
         try {
             executor.execute(bot, event, arguments);
         } catch (Exception e) {
-            log.error("Error in handle command {}: ", event.getRawMessage(),e);
+            log.error("Error in handle command {}: ", event.getRawMessage(), e);
         }
         return CommandResult.SUCCESS;
     }

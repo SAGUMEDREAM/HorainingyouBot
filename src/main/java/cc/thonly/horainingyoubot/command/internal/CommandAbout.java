@@ -3,7 +3,7 @@ package cc.thonly.horainingyoubot.command.internal;
 import cc.thonly.horainingyoubot.browser.MarkdownImage;
 import cc.thonly.horainingyoubot.browser.MarkdownImageFactory;
 import cc.thonly.horainingyoubot.command.*;
-import cc.thonly.horainingyoubot.util.MsgUtil;
+import cc.thonly.horainingyoubot.util.MsgTool;
 import com.mikuac.shiro.common.utils.ArrayMsgUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,7 +30,7 @@ public class CommandAbout implements CommandEntrypoint {
                         .bypassEulaCheck()
                         .withExecutor((bot, event, args) -> {
                             MarkdownImage markdownImage = this.factory.render(FEEDBACKS);
-                            MsgUtil.reply(bot, event, ArrayMsgUtils.builder().img(markdownImage.get()).build());
+                            MsgTool.reply(bot, event, ArrayMsgUtils.builder().img(markdownImage.get()).build());
                         })
         );
     }

@@ -12,17 +12,21 @@ public class JsonElementConverter implements AttributeConverter<JsonElement, Str
 
     @Override
     public String convertToDatabaseColumn(JsonElement attribute) {
-        if (attribute == null) {
-            return null;
+        if (attribute == null || attribute.isJsonNull()) {
+            return "{}";
         }
         return GSON.toJson(attribute);
     }
 
     @Override
     public JsonElement convertToEntityAttribute(String dbData) {
-        if (dbData == null || dbData.isEmpty()) {
-            return null;
+        try {
+            if (dbData == null || dbData.isBlank()) {
+                return GSON.fromJson("{}", JsonElement.class);
+            }
+            return GSON.fromJson(dbData, JsonElement.class);
+        } catch (Exception e) {
+            return GSON.fromJson("{}", JsonElement.class);
         }
-        return GSON.fromJson(dbData, JsonElement.class);
     }
 }

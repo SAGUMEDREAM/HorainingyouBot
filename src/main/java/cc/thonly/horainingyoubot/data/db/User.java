@@ -1,6 +1,7 @@
 package cc.thonly.horainingyoubot.data.db;
 
 import cc.thonly.horainingyoubot.converter.CustomDataConverter;
+import cc.thonly.horainingyoubot.data.CustomDataView;
 import cc.thonly.horainingyoubot.data.PermissionLevel;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -10,7 +11,6 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "users")
@@ -31,6 +31,10 @@ public class User {
 
     @Convert(converter = CustomDataConverter.class)
     private CustomData customData = new CustomData();
+
+    public <R> R getView(CustomDataView<User,R> factory) {
+        return factory.create(this, this.customData);
+    }
 
     public void setPermissionLevel(Integer permissionLevel) {
         this.permissionLevel = permissionLevel;

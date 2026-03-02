@@ -27,11 +27,13 @@ public class GroupManagerImpl {
         if (groupId == null) {
             return null;
         }
-        return new Group(groupId,
+        Group group = new Group(groupId,
                 false,
                 new ArrayList<>(),
                 new CustomData()
         );
+        this.groupRepository.save(group);
+        return group;
     }
 
     public Group forceCreateGroup(Group group) {

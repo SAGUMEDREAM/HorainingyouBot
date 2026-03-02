@@ -6,7 +6,7 @@ import cc.thonly.horainingyoubot.command.CommandNode;
 import cc.thonly.horainingyoubot.command.Commands;
 import cc.thonly.horainingyoubot.core.JPlugin;
 import cc.thonly.horainingyoubot.core.JPluginLoader;
-import cc.thonly.horainingyoubot.util.MsgUtil;
+import cc.thonly.horainingyoubot.util.MsgTool;
 import com.mikuac.shiro.common.utils.ArrayMsgUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -47,7 +47,7 @@ public class CommandPlugins implements CommandEntrypoint {
 //                                md.append("- Jar: `").append(jarPath).append("`\n\n");
                             }
 
-                            MsgUtil.reply(bot, event, ArrayMsgUtils.builder().text(md.toString()).build());
+                            MsgTool.reply(bot, event, ArrayMsgUtils.builder().text(md.toString()).build());
                         })
         );
     }

@@ -4,7 +4,7 @@ import cc.thonly.horainingyoubot.command.*;
 import cc.thonly.horainingyoubot.data.PermissionLevel;
 import cc.thonly.horainingyoubot.data.db.Group;
 import cc.thonly.horainingyoubot.service.GroupManagerImpl;
-import cc.thonly.horainingyoubot.util.MsgUtil;
+import cc.thonly.horainingyoubot.util.MsgTool;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
@@ -23,7 +23,7 @@ public class CommandGroup implements CommandEntrypoint {
                                 group.setBanned(true);
                                 this.groupManager.save(group);
                             }, () -> {
-                                MsgUtil.reply(bot, event, "无法找到群组 %s".formatted(event.getGroupId()));
+                                MsgTool.reply(bot, event, "无法找到群组 %s".formatted(event.getGroupId()));
                             });
                         })
                         .withArguments("#{group_id}")
@@ -35,7 +35,7 @@ public class CommandGroup implements CommandEntrypoint {
                                 group.setBanned(false);
                                 this.groupManager.save(group);
                             }, () -> {
-                                MsgUtil.reply(bot, event, "无法找到群组 %s".formatted(event.getGroupId()));
+                                MsgTool.reply(bot, event, "无法找到群组 %s".formatted(event.getGroupId()));
                             });
                         })
                         .withArguments("#{group_id}")
@@ -79,7 +79,7 @@ public class CommandGroup implements CommandEntrypoint {
                             groupOptional.ifPresentOrElse(group -> {
                                 bot.setGroupLeave(group.getGroupId(), false);
                             }, () -> {
-                                MsgUtil.reply(bot, event, "无法找到群组 %s".formatted(event.getGroupId()));
+                                MsgTool.reply(bot, event, "无法找到群组 %s".formatted(event.getGroupId()));
                             });
                         })
                         .withArguments("#{group_id}")

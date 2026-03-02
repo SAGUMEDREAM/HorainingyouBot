@@ -3,15 +3,17 @@ package cc.thonly.horainingyoubot.service;
 import cc.thonly.horainingyoubot.data.db.CustomData;
 import cc.thonly.horainingyoubot.data.db.User;
 import cc.thonly.horainingyoubot.repository.UserRepository;
-import cc.thonly.horainingyoubot.util.MsgUtil;
+import cc.thonly.horainingyoubot.util.MsgTool;
 import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
 import com.mikuac.shiro.dto.event.message.GroupMessageEvent;
+import com.mikuac.shiro.dto.event.notice.PokeNoticeEvent;
 import com.mikuac.shiro.dto.event.request.RequestEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -31,7 +33,7 @@ public class UserManagerImpl {
         User user = new User(
                 userId,
                 sender.getNickname(),
-                MsgUtil.getUserAvatar(userId),
+                MsgTool.getUserAvatar(userId),
                 false,
                 false,
                 1,
@@ -54,7 +56,7 @@ public class UserManagerImpl {
         return this.forceCreateUser(
                 new User(userId,
                         String.valueOf(userId),
-                        MsgUtil.getUserAvatar(userId),
+                        MsgTool.getUserAvatar(userId),
                         false,
                         false,
                         1,
@@ -71,11 +73,33 @@ public class UserManagerImpl {
     public User getOrCreate(AnyMessageEvent event) {
         Long userId = event.getUserId();
 
+        Optional<User> byId = this.userRepository.findById(userId);
+        if (byId.isEmpty()) {
+            return this.createUser(event);
+        }
+        User user = byId.get();
+        boolean changed = false;
+        if (Objects.equals(event.getSender().getNickname(), user.getUsername())) {
+            user.setUsername(event.getSender().getNickname());
+            changed = true;
+        }
+        if (changed) {
+            this.userRepository.save(user);
+        } else {
+            return user;
+        }
         return this.userRepository.findById(userId)
                 .orElseGet(() -> this.createUser(event));
     }
 
     public User getOrCreate(RequestEvent event) {
+        Long userId = event.getUserId();
+
+        return this.userRepository.findById(userId)
+                .orElseGet(() -> this.forceCreateUser(userId));
+    }
+
+    public User getOrCreate(PokeNoticeEvent event) {
         Long userId = event.getUserId();
 
         return this.userRepository.findById(userId)

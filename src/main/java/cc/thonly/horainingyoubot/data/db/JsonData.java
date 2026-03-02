@@ -22,7 +22,7 @@ public class JsonData {
     @Convert(converter = JsonElementConverter.class)
     private JsonElement internalElement;
 
-    public <T> T asEditor(EditorFactory<T> factory) {
+    public <T> T getView(EditorFactory<T> factory) {
         return factory.accept(this.internalElement);
     }
 

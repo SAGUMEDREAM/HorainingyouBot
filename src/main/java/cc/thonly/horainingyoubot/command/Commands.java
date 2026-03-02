@@ -33,6 +33,9 @@ public class Commands {
             return;
         }
         this.root2Node.put(node.getName(), node);
+        for (String aliasName : node.getAliasNames()) {
+            this.root2Node.put(aliasName, node);
+        }
     }
 
     public void registerCommand(CommandEntrypoint entrypoint) {
@@ -51,7 +54,7 @@ public class Commands {
     public CommandSession parseForCommand(Bot bot, GroupMessageEvent event) {
         List<ArrayMsg> arrayMsgs = event.getArrayMsg();
         if (arrayMsgs == null || arrayMsgs.isEmpty()) {
-            System.out.println("1");
+//            System.out.println("1");
             return null;
         }
         arrayMsgs = normalizeAtBotFirst(bot, arrayMsgs);
@@ -85,8 +88,9 @@ public class Commands {
         // 匹配子命令路径
         while (index < tokens.size()) {
             String token = tokens.get(index);
-            CommandNode next = findChildByName(current, token);
-
+            CommandNode next = this.findChildByName(current, token);
+//            System.out.println("token: "+token);
+//            System.out.println("res: "+next);
             if (next == null) {
                 break;
             }
@@ -241,7 +245,11 @@ public class Commands {
 
     private CommandNode findChildByName(CommandNode node, String name) {
         for (CommandNode child : node.getChildren()) {
-            if (child.getName().equals(name)) {
+//            System.out.println("test");
+//            System.out.println("name: " + name);
+//            System.out.println("alias: " + child.getAliasNames());
+//            System.out.println("contains: " + child.getAliasNames().contains(name));
+            if (child.getName().equals(name) || child.getAliasNames().contains(name)) {
                 return child;
             }
         }

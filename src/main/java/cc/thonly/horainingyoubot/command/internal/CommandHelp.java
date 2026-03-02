@@ -6,14 +6,11 @@ import cc.thonly.horainingyoubot.command.Command;
 import cc.thonly.horainingyoubot.command.CommandEntrypoint;
 import cc.thonly.horainingyoubot.command.CommandNode;
 import cc.thonly.horainingyoubot.command.Commands;
-import cc.thonly.horainingyoubot.util.MsgUtil;
+import cc.thonly.horainingyoubot.util.MsgTool;
 import com.mikuac.shiro.common.utils.ArrayMsgUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Command
 public class CommandHelp implements CommandEntrypoint {
@@ -32,7 +29,24 @@ public class CommandHelp implements CommandEntrypoint {
                         .withExecutor((bot, event, args) -> {
                             String command = args.getString("command");
                             if (command == null || command.isBlank()) {
-                                MsgUtil.reply(bot, event, ArrayMsgUtils.builder().text("请输入命令名称").build());
+                                MsgTool.reply(bot, event, ArrayMsgUtils.builder().text("请输入命令名称").build());
+                                return;
+                            }
+
+                            if (Objects.equals(command, "all")) {
+                                Map<String, CommandNode> root2Node = this.commands.getRoot2Node();
+                                List<String> allCommands = new ArrayList<>();
+                                for (Map.Entry<String, CommandNode> mapEntry : root2Node.entrySet()) {
+                                    CommandNode node = mapEntry.getValue();
+                                    this.buildPaths(node, allCommands);
+                                }
+                                List<String> mdTextResults = new ArrayList<>();
+                                mdTextResults.add("命令列表：");
+                                for (String cmd : allCommands) {
+                                    mdTextResults.add("* /" + cmd);
+                                }
+                                MarkdownImage render = this.markdownImageFactory.render(mdTextResults);
+                                MsgTool.reply(bot, event, ArrayMsgUtils.builder().img(render.get()).build());
                                 return;
                             }
 
@@ -40,7 +54,7 @@ public class CommandHelp implements CommandEntrypoint {
                                     .filter(s -> !s.isBlank())
                                     .toList();
                             if (split.isEmpty()) {
-                                MsgUtil.reply(bot, event, ArrayMsgUtils.builder().text("命令无效").build());
+                                MsgTool.reply(bot, event, ArrayMsgUtils.builder().text("命令无效").build());
                                 return;
                             }
 
@@ -48,7 +62,7 @@ public class CommandHelp implements CommandEntrypoint {
                             Map<String, CommandNode> root2Node = this.commands.getRoot2Node();
                             CommandNode root = root2Node.get(split.get(0));
                             if (root == null) {
-                                MsgUtil.reply(bot, event, ArrayMsgUtils.builder().text("找不到命令: " + split.get(0)).build());
+                                MsgTool.reply(bot, event, ArrayMsgUtils.builder().text("找不到命令: " + split.get(0)).build());
                                 return;
                             }
 
@@ -71,7 +85,7 @@ public class CommandHelp implements CommandEntrypoint {
                                     .toList();
 
                             if (filtered.isEmpty()) {
-                                MsgUtil.reply(bot, event, ArrayMsgUtils.builder().text("没有匹配的用法").build());
+                                MsgTool.reply(bot, event, ArrayMsgUtils.builder().text("没有匹配的用法").build());
                                 return;
                             }
 
@@ -82,7 +96,7 @@ public class CommandHelp implements CommandEntrypoint {
                             }
 
                             MarkdownImage render = this.markdownImageFactory.render(mdTexts);
-                            MsgUtil.reply(bot, event, ArrayMsgUtils.builder().img(render.get()).build());
+                            MsgTool.reply(bot, event, ArrayMsgUtils.builder().img(render.get()).build());
                         })
         );
     }
@@ -92,24 +106,49 @@ public class CommandHelp implements CommandEntrypoint {
     }
 
     private void buildPaths(CommandNode node, String prefix, List<String> result) {
-        // 累积当前节点路径
-        StringBuilder path = new StringBuilder(prefix);
-        if (!prefix.isEmpty()) {
-            path.append(" "); // 父路径非空，补空格
-        }
-        path.append(node.getName());
 
-        // 添加节点参数
-        for (String arg : node.getArguments()) {
-            path.append(" #{").append(arg).append("}");
-        }
+        List<String> names = new ArrayList<>();
+        names.add(node.getName());
+//        names.addAll(node.getAliasNames());
 
-        // 当前节点路径加入结果
-        result.add(path.toString().trim());
+        for (String name : names) {
 
-        // 递归子节点
-        for (CommandNode child : node.getChildren()) {
-            buildPaths(child, path.toString(), result);
+            StringBuilder path = new StringBuilder(prefix);
+
+            if (!prefix.isEmpty()) {
+                path.append(" ");
+            }
+
+            path.append(name);
+
+            for (String arg : node.getArguments()) {
+                path.append(" #{").append(arg).append("}");
+            }
+
+            String fullPath = path.toString().trim();
+            result.add(fullPath);
+
+            for (CommandNode child : node.getChildren()) {
+                buildPaths(child, fullPath, result);
+            }
         }
     }
+
+//    private void buildPaths(CommandNode node, String prefix, List<String> result) {
+//        StringBuilder path = new StringBuilder(prefix);
+//        if (!prefix.isEmpty()) {
+//            path.append(" ");
+//        }
+//        path.append(node.getName());
+//
+//        for (String arg : node.getArguments()) {
+//            path.append(" #{").append(arg).append("}");
+//        }
+//
+//        result.add(path.toString().trim());
+//
+//        for (CommandNode child : node.getChildren()) {
+//            buildPaths(child, path.toString(), result);
+//        }
+//    }
 }

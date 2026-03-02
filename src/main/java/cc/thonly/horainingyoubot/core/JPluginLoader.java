@@ -39,6 +39,7 @@ public class JPluginLoader {
                 }
             } catch (Exception e) {
                 log.error("Can't load plugin: {}", line, e);
+                throw new RuntimeException(e);
             }
         }
         this.id2plugin.forEach((id, jPlugin) -> {

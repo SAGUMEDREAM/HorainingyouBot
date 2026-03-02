@@ -1,5 +1,6 @@
 package cc.thonly.horainingyoubot.core;
 
+import cc.thonly.horainingyoubot.command.Commands;
 import cc.thonly.horainingyoubot.service.GroupManagerImpl;
 
 public interface JPlugin {
@@ -9,6 +10,10 @@ public interface JPlugin {
 
     default String getPluginDescription() {
         return "";
+    }
+
+    default void registerCommands(Commands commands) {
+
     }
 
     static <T> T getBean(Class<T> bean) {

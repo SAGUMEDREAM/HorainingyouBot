@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '2.1.21'
     id 'org.springframework.boot' version '4.0.3'
     id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -22,11 +23,13 @@ configurations {
 
 repositories {
     mavenCentral()
-    maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
+    maven {
+        url 'https://maven.aliyun.com/repository/public'
+    }
 }
 
 dependencies {
-    implementation files("/libs/launchwrapper-1.3.1.jar")
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation 'com.google.guava:guava:32.0.1-jre'
     implementation 'org.ow2.asm:asm-tree:9.4'
     implementation 'org.ow2.asm:asm-commons:9.4'
@@ -38,7 +41,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-//    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
@@ -52,16 +55,22 @@ dependencies {
     implementation "com.microsoft.playwright:playwright:1.44.0"
     implementation "net.sf.jopt-simple:jopt-simple:5.0.4"
     implementation 'com.github.oshi:oshi-core:6.4.0'
-
-    implementation "org.spongepowered:mixin:0.8.7"
-    implementation "org.apache.logging.log4j:log4j-api:2.20.0"
-    implementation 'org.apache.logging.log4j:log4j-core:2.25.3'
-//    annotationProcessor 'org.spongepowered:mixin:0.8.7:processor'
+    implementation 'com.github.promeg:tinypinyin:2.0.3'
+    implementation 'com.github.promeg:tinypinyin-lexicons-java-cncity:2.0.3'
+    implementation files("/libs/HuoZiYinShua-1.0.jar")
+    implementation files("/libs/mcserverping-1.0.9.jar")
+    implementation "com.zaxxer:jnb-ping:3.0.0"
+    implementation 'dnsjava:dnsjava:3.6.0'
+    implementation "net.md-5:bungeecord-chat:1.16-R0.4"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-jdbc-test'
-//    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.1'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
 
 }
 
@@ -74,16 +83,4 @@ tasks.withType(JavaExec).configureEach {
             "--add-modules=jdk.attach",
             "-Djdk.attach.allowAttachSelf=true"
     ]
-}
-
-afterEvaluate {
-    configurations.runtimeClasspath.forEach { file ->
-        if (file.name.startsWith("sponge-mixin")) {
-            tasks.withType(JavaExec).configureEach {
-                jvmArgs("-javaagent:${file.absolutePath}")
-                jvmArgs("-Dmixin.debug=true")
-                jvmArgs("-Dmixin.verbose=true")
-            }
-        }
-    }
 }

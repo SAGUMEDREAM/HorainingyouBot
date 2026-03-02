@@ -1,0 +1,1 @@
+cc.thonly.horainingyoubot.plugin.essential_bot.EssentialBot

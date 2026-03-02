@@ -5,6 +5,7 @@ import cc.thonly.horainingyoubot.data.CommandResult;
 import cc.thonly.horainingyoubot.data.PermissionLevel;
 import cc.thonly.horainingyoubot.data.db.Group;
 import cc.thonly.horainingyoubot.data.db.User;
+import cc.thonly.horainingyoubot.event.PokeEvent;
 import cc.thonly.horainingyoubot.event.ReceiveFriendAddRequestEvent;
 import cc.thonly.horainingyoubot.event.ReceiveGroupAddRequestEvent;
 import cc.thonly.horainingyoubot.repository.GroupRepository;
@@ -13,11 +14,14 @@ import cc.thonly.horainingyoubot.service.GroupManagerImpl;
 import cc.thonly.horainingyoubot.service.MessageFilterImpl;
 import cc.thonly.horainingyoubot.service.MessageHandlerImpl;
 import cc.thonly.horainingyoubot.service.UserManagerImpl;
+import cc.thonly.horainingyoubot.util.LinkedMessage;
 import com.mikuac.shiro.annotation.common.Shiro;
 import com.mikuac.shiro.common.utils.ArrayMsgUtils;
 import com.mikuac.shiro.core.Bot;
 import com.mikuac.shiro.core.BotPlugin;
 import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
+import com.mikuac.shiro.dto.event.message.GroupMessageEvent;
+import com.mikuac.shiro.dto.event.notice.PokeNoticeEvent;
 import com.mikuac.shiro.dto.event.request.FriendAddRequestEvent;
 import com.mikuac.shiro.dto.event.request.GroupAddRequestEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +56,28 @@ public class CorePlugin extends BotPlugin {
     MessageFilterImpl messageFilter;
 
     @Override
+    public int onGroupPokeNotice(Bot bot, PokeNoticeEvent event) {
+        User user = this.userManager.getOrCreate(event);
+        if (user.getBanned()) {
+            return MESSAGE_BLOCK;
+        }
+        System.out.println(event);
+        CoreEvent.POKE.post(new PokeEvent(bot, event));
+        return super.onGroupPokeNotice(bot, event);
+    }
+
+    @Override
+    public int onPrivatePokeNotice(Bot bot, PokeNoticeEvent event) {
+        User user = this.userManager.getOrCreate(event);
+        if (user.getBanned()) {
+            return MESSAGE_BLOCK;
+        }
+        System.out.println(event);
+        CoreEvent.POKE.post(new PokeEvent(bot, event));
+        return super.onPrivatePokeNotice(bot, event);
+    }
+
+    @Override
     public int onFriendAddRequest(Bot bot, FriendAddRequestEvent event) {
         User user = this.userManager.getOrCreate(event);
         if (user.getBanned()) {
@@ -76,13 +102,15 @@ public class CorePlugin extends BotPlugin {
         if (Constants.DEV_MODE && !isDevUser(bot, event)) {
             return MESSAGE_BLOCK;
         }
-//        System.out.println("==");
-//        System.out.println(event.getArrayMsg());
-//        System.out.println(event.getRawMessage());
+        System.out.println("==");
+        System.out.println(event.getArrayMsg());
+        System.out.println(event.getRawMessage());
         User user = this.userManager.getOrCreate(event);
-        boolean inGroup = event.getGroupId() != null;
-        if (inGroup) {
-            Group group = this.groupManager.getOrCreate(event);
+        Group group = null;
+        boolean groupEvent = event.getGroupId() != null;
+        if (groupEvent) {
+            group = this.groupManager.getOrCreate(event);
+//            System.out.println(group);
             if (group.getBanned() && !user.hasPermissionLevel(PermissionLevel.MODERATOR)) {
                 return MESSAGE_BLOCK;
             }
@@ -101,7 +129,8 @@ public class CorePlugin extends BotPlugin {
             return MESSAGE_BLOCK;
         }
 //        System.out.println(111);
-        CommandResult result = this.handler.accept(bot, user, event);
+        LinkedMessage.onMessage(event);
+        CommandResult result = this.handler.accept(bot, user, group, event);
         if (Objects.equals(result, CommandResult.NO_PERMISSION)) {
             bot.sendMsg(event, ArrayMsgUtils.builder().reply(event.getMessageId()).text("您没有执行此命令的权限").build(), true);
         }
@@ -111,10 +140,37 @@ public class CorePlugin extends BotPlugin {
         if (!Objects.equals(result, CommandResult.SUCCESS)) {
             this.coreEvent.handleBus(bot, event);
         }
+//        if (event.getMessage().contains("./开启链式测试")) {
+//
+//            bot.sendMsg(event, "已启动，请连续输入 5 次", false);
+//
+//            LinkedMessage.start(bot, event, ctx -> {
+//
+//                for (int i = 0; i < 5; i++) {
+//                    try {
+//                        AnyMessageEvent next = ctx.waitNext(5);
+//
+//                        bot.sendMsg(next,
+//                                "第 %d 次，你输入了: %s".formatted(i + 1, next.getMessage()),
+//                                false);
+//
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                        bot.sendMsg(ctx.getOrigin(),
+//                                "等待超时，流程结束",
+//                                false);
+//                        break;
+//                    }
+//                }
+//
+//            }, (b, e) -> {
+//                bot.sendMsg(event, "链式流程异常终止", false);
+//            });
+//        }
         return MESSAGE_IGNORE;
     }
 
     private boolean isDevUser(Bot bot, AnyMessageEvent event) {
-        return event.getUserId() == bot.getSelfId() || event.getUserId() == 807131829;
+        return event.getUserId() == bot.getSelfId() || event.getUserId() == 807131829L || event.getUserId() == 2662728128L;
     }
 }

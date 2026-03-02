@@ -3,10 +3,8 @@ package cc.thonly.horainingyoubot.command.internal;
 import cc.thonly.horainingyoubot.browser.MarkdownImage;
 import cc.thonly.horainingyoubot.browser.MarkdownImageFactory;
 import cc.thonly.horainingyoubot.command.*;
-import cc.thonly.horainingyoubot.util.MsgUtil;
+import cc.thonly.horainingyoubot.util.MsgTool;
 import com.mikuac.shiro.common.utils.ArrayMsgUtils;
-import com.mikuac.shiro.dto.event.message.GroupMessageEvent;
-import com.mikuac.shiro.model.ArrayMsg;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -45,7 +43,7 @@ public class CommandTree implements CommandEntrypoint {
                             }
 //                            System.out.println(output);
                             MarkdownImage render = this.markdownImageFactory.render(output);
-                            MsgUtil.reply(bot, event, ArrayMsgUtils.builder().img(render.get()).build());
+                            MsgTool.reply(bot, event, ArrayMsgUtils.builder().img(render.get()).build());
                         })
         );
     }

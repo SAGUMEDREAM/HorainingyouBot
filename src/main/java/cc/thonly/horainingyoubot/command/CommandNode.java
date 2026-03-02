@@ -22,9 +22,11 @@ public final class CommandNode {
     private CommandNode prevNode;
     private int permissionLevel = -1;
     private int length = -1;
+    private ContextPredicate predicate = (bot, user, group) -> false;
     private boolean eulaNoCheck = false;
     private final List<CommandNode> subNodes = new ArrayList<>();
     private final List<String> arguemnts = new ArrayList<>();
+    private final List<String> aliasNames = new ArrayList<>();
     private Map<String, Object> defaultArguemnts = new LinkedHashMap<>();
 
     private CommandNode(String name) {
@@ -75,6 +77,20 @@ public final class CommandNode {
         }
     }
 
+    public CommandNode withAliasName(String name) {
+//        var prev = this.prevNode == null ? this : this.prevNode;
+//        prev.aliasNames.add(name);
+        this.aliasNames.add(name);
+        return this;
+    }
+
+    public CommandNode withAliasName(String... names) {
+        for (String s : names) {
+            this.withAliasName(s);
+        }
+        return this;
+    }
+
     public CommandNode withArgumentName(String argumentName) {
         this.arguemnts.add(argumentName);
         return this;
@@ -116,6 +132,11 @@ public final class CommandNode {
         return this;
     }
 
+    public CommandNode withPredicate(ContextPredicate predicate) {
+        this.predicate = predicate;
+        return this;
+    }
+
     public CommandNode withExecutor(CommandExecutor executor) {
         this.executor = executor;
         return this;
@@ -142,15 +163,15 @@ public final class CommandNode {
 
     private void buildPaths(CommandNode node, String path, List<String> result) {
 //        if (node.hasExecutor()) {
-            StringBuilder cmd = new StringBuilder(path);
+        StringBuilder cmd = new StringBuilder(path);
 
-            if (!node.arguemnts.isEmpty()) {
-                for (String arg : node.arguemnts) {
-                    cmd.append(" #{").append(arg).append("}");
-                }
+        if (!node.arguemnts.isEmpty()) {
+            for (String arg : node.arguemnts) {
+                cmd.append(" #{").append(arg).append("}");
             }
+        }
 
-            result.add(cmd.toString());
+        result.add(cmd.toString());
 //        }
 
         // 遍历子节点
@@ -196,6 +217,10 @@ public final class CommandNode {
         return this.name;
     }
 
+    public List<String> getAliasNames() {
+        return this.aliasNames;
+    }
+
     public CommandNode setPrevNode(CommandNode prevNode) {
         if (this.root) return this;
         this.prevNode = prevNode;
@@ -212,6 +237,10 @@ public final class CommandNode {
 
     public CommandNode getPrevNode() {
         return this.prevNode;
+    }
+
+    public ContextPredicate getPredicate() {
+        return this.predicate;
     }
 
     public static CommandNode createRoot(String name) {

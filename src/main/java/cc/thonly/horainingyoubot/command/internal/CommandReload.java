@@ -3,7 +3,7 @@ package cc.thonly.horainingyoubot.command.internal;
 import cc.thonly.horainingyoubot.command.*;
 import cc.thonly.horainingyoubot.core.StartupRunner;
 import cc.thonly.horainingyoubot.data.PermissionLevel;
-import cc.thonly.horainingyoubot.util.MsgUtil;
+import cc.thonly.horainingyoubot.util.MsgTool;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Command
@@ -21,7 +21,7 @@ public class CommandReload implements CommandEntrypoint {
                             this.runner.run();
                             long end = System.currentTimeMillis();
                             long elapsed = end - start;
-                            MsgUtil.reply(bot, event, "重载成功，一共花费+ %s ms".formatted(elapsed));
+                            MsgTool.reply(bot, event, "重载成功，一共花费+ %s ms".formatted(elapsed));
                         })
         );
     }

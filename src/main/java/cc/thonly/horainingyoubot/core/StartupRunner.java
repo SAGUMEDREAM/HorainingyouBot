@@ -4,6 +4,7 @@ import cc.thonly.horainingyoubot.Constants;
 import cc.thonly.horainingyoubot.command.CommandNode;
 import cc.thonly.horainingyoubot.command.Commands;
 import cc.thonly.horainingyoubot.config.BotProperties;
+import cc.thonly.horainingyoubot.controller.TempFileController;
 import cc.thonly.horainingyoubot.event.internal.EventBusFactory;
 import cc.thonly.horainingyoubot.browser.CSSTools;
 import com.microsoft.playwright.*;
@@ -11,13 +12,21 @@ import com.mikuac.shiro.common.utils.ArrayMsgUtils;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
+import lombok.SneakyThrows;
 import org.jspecify.annotations.NonNull;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
 @Component
 public class StartupRunner implements CommandLineRunner {
+    @Autowired
+    TempFileController tempFileController;
     @Autowired
     Commands commands;
     @Autowired
@@ -27,6 +36,7 @@ public class StartupRunner implements CommandLineRunner {
     @Autowired
     BotProperties botProperties;
 
+    @SneakyThrows
     @Override
     public void run(String @NonNull ... args) {
         if (Constants.CACHED_SELF_ID == null || Constants.CACHED_SELF_ID.isEmpty()) {
@@ -35,6 +45,17 @@ public class StartupRunner implements CommandLineRunner {
         try (Playwright playwright = Playwright.create()) {
             playwright.chromium();
         }
+        List<Path> paths = List.of(
+                Path.of("./assets"),
+                Path.of("./data"),
+                Path.of("./temp")
+        );
+        for (Path path : paths) {
+            if (Files.notExists(path)) {
+                Files.createDirectory(path);
+            }
+        }
+        this.tempFileController.clear();
         EventBusFactory.clear();
         this.commands.drops();
         this.internalCommands.accept(this.commands);

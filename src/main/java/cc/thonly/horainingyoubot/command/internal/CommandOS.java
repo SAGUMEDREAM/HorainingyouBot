@@ -7,7 +7,7 @@ import cc.thonly.horainingyoubot.command.CommandEntrypoint;
 import cc.thonly.horainingyoubot.command.CommandNode;
 import cc.thonly.horainingyoubot.command.Commands;
 import cc.thonly.horainingyoubot.util.BotStatus;
-import cc.thonly.horainingyoubot.util.MsgUtil;
+import cc.thonly.horainingyoubot.util.MsgTool;
 import com.mikuac.shiro.common.utils.ArrayMsgUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class CommandOS implements CommandEntrypoint {
                             CompletableFuture.supplyAsync(botStatus::getStatusMarkdown)
                                     .thenAccept(mdList -> {
                                         MarkdownImage markdownImage = this.markdownImageFactory.render(mdList);
-                                        MsgUtil.reply(bot, event, ArrayMsgUtils.builder().img(markdownImage.get()).build());
+                                        MsgTool.reply(bot, event, ArrayMsgUtils.builder().img(markdownImage.get()).build());
                                     });
                         })
         );

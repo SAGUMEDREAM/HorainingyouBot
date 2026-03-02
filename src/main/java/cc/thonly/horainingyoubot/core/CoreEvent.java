@@ -29,12 +29,6 @@ public class CoreEvent {
         List<ArrayMsg> arrayMsg = event.getArrayMsg();
         if (!arrayMsg.isEmpty()) {
             ArrayMsg first = arrayMsg.getFirst();
-            if (Objects.equals(first.getType(), MsgTypeEnum.poke)) {
-                EventResult result = POKE.post(new PokeEvent(bot, event));
-                if (result.is(EventResult.BLOCKING)) {
-                    return;
-                }
-            }
             if (Objects.equals(first.getType(), MsgTypeEnum.at)) {
                 JsonNode data = first.getData();
                 String qq = data.get("qq").asString();
