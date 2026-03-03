@@ -5,12 +5,16 @@ import cc.thonly.horainingyoubot.core.JPlugin;
 import cc.thonly.maimai.command.CommandB50;
 import io.lemonjuice.flan_mai_plugin.refence.ConfigRefs;
 import io.lemonjuice.flan_mai_plugin.utils.SongManager;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+@Slf4j
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class Maimai implements JPlugin {
 
@@ -22,7 +26,7 @@ public class Maimai implements JPlugin {
         if (ConfigRefs.check()) {
             ConfigRefs.init();
         }
-        SongManager.init();
+        Thread.startVirtualThread(SongManager::init);
         this.registerCommands(this.commands);
     }
 

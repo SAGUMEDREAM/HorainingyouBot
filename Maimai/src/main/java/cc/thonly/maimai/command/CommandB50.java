@@ -41,6 +41,7 @@ public class CommandB50 implements CommandEntrypoint {
                             if (userOptional.isEmpty()) {
                                 return;
                             }
+
                             User user = userOptional.get();
                             BufferedImage image = DivingFishB50Generator.generate(user.getUserId());
                             try {
