@@ -2,11 +2,12 @@ package cc.thonly.essential_bot;
 
 import cc.thonly.essential_bot.command.*;
 import cc.thonly.horainingyoubot.command.Commands;
+import cc.thonly.essential_bot.command.CommandInfo;
+import cc.thonly.horainingyoubot.command.internal.CommandCopyGroupMembers;
 import cc.thonly.horainingyoubot.core.CoreEvent;
 import cc.thonly.horainingyoubot.core.JPlugin;
 import cc.thonly.horainingyoubot.data.db.User;
 import cc.thonly.horainingyoubot.event.internal.EventResult;
-import cc.thonly.essential_bot.command.*;
 import cc.thonly.horainingyoubot.service.UserManagerImpl;
 import cc.thonly.horainingyoubot.util.MsgTool;
 import com.mikuac.shiro.core.Bot;
@@ -54,7 +55,7 @@ public class EssentialBot implements JPlugin {
                     || comment.contains("谢谢！！！")
                     || comment.contains("通过一下")) {
                 bot.setGroupAddRequest(requestEvent.getFlag(), requestEvent.getSubType(), false, "自动处理");
-                return EventResult.BLOCKING;
+                return EventResult.PASS;
             }
             return EventResult.PASS;
         });
@@ -65,7 +66,7 @@ public class EssentialBot implements JPlugin {
             String cqcode = MsgTool.toListCQ(arrayMsgs);
             if (cqcode.contains("在吗") || cqcode.contains("在吗?") || cqcode.contains("在?")) {
                 MsgTool.reply(bot, anyMessageEvent, "Bot在");
-                return EventResult.BLOCKING;
+                return EventResult.PASS;
             } else {
                 return EventResult.PASS;
             }
@@ -92,7 +93,7 @@ public class EssentialBot implements JPlugin {
             this.scheduler.schedule(() -> {
                 pokeLock.set(false);
             }, 30, TimeUnit.SECONDS);
-            return EventResult.BLOCKING;
+            return EventResult.PASS;
         });
         CoreEvent.RECEIVE_ANY_REPLY.register(event -> {
             Bot bot = event.getBot();
@@ -120,7 +121,7 @@ public class EssentialBot implements JPlugin {
                 }
                 bot.deleteMsg(messageId);
                 bot.sendMsg(anyMessageEvent, "咱再也不乱说话了", false);
-                return EventResult.BLOCKING;
+                return EventResult.PASS;
             }
             return EventResult.PASS;
         });
@@ -144,31 +145,11 @@ public class EssentialBot implements JPlugin {
     }
 
     @Autowired
-    CommandKick commandKick;
-    @Autowired
-    CommandMute commandMute;
-    @Autowired
-    CommandUnmute commandUnmute;
-    @Autowired
-    CommandWholeMute commandWholeMute;
-    @Autowired
     CommandLeaveMessage commandLeaveMessage;
     @Autowired
-    cc.thonly.essential_bot.command.CommandSign commandSign;
+    CommandSign commandSign;
     @Autowired
-    cc.thonly.essential_bot.command.CommandInfo commandInfo;
-    @Autowired
-    CommandTHSearch commandTHSearch;
-    @Autowired
-    CommandGroupSearch commandGroupSearch;
-    @Autowired
-    CommandTHWiki commandTHWiki;
-    @Autowired
-    CommandLilySearch commandLilySearch;
-    @Autowired
-    cc.thonly.essential_bot.command.CommandJrrp commandJrrp;
-    @Autowired
-    CommandTHPicture commandTHPicture;
+    CommandInfo commandInfo;
     @Autowired
     CommandRandomAnime commandRandomAnime;
     @Autowired
@@ -177,10 +158,6 @@ public class EssentialBot implements JPlugin {
     CommandRandomNumber commandRandomNumber;
     @Autowired
     CommandRandomUUID commandRandomUUID;
-    @Autowired
-    CommandRandomTouhouMusic commandRandomTouhouMusic;
-    @Autowired
-    CommandUploadTHPicture commandUploadTHPicture;
     @Autowired
     CommandHuoZi commandHuozi;
     @Autowired
@@ -192,7 +169,7 @@ public class EssentialBot implements JPlugin {
     @Autowired
     CommandBaiduImage commandBaiduImage;
     @Autowired
-    cc.thonly.essential_bot.command.CommandHomo commandHomo;
+    CommandHomo commandHomo;
     @Autowired
     Command5k command5k;
     @Autowired
@@ -209,29 +186,15 @@ public class EssentialBot implements JPlugin {
     CommandPing commandPing;
     @Autowired
     CommandMCS commandMCS;
-    @Autowired
-    CommandCopyGroupMembers commandCopyGroupMembers;
 
     private void registerCommands() {
-        this.commands.registerCommand(this.commandKick);
-        this.commands.registerCommand(this.commandMute);
-        this.commands.registerCommand(this.commandUnmute);
-        this.commands.registerCommand(this.commandWholeMute);
         this.commands.registerCommand(this.commandLeaveMessage);
         this.commands.registerCommand(this.commandSign);
         this.commands.registerCommand(this.commandInfo);
-        this.commands.registerCommand(this.commandTHSearch);
-        this.commands.registerCommand(this.commandGroupSearch);
-        this.commands.registerCommand(this.commandTHWiki);
-        this.commands.registerCommand(this.commandLilySearch);
-        this.commands.registerCommand(this.commandJrrp);
-        this.commands.registerCommand(this.commandTHPicture);
         this.commands.registerCommand(this.commandRandomAnime);
         this.commands.registerCommand(this.commandRandomMember);
         this.commands.registerCommand(this.commandRandomNumber);
         this.commands.registerCommand(this.commandRandomUUID);
-        this.commands.registerCommand(this.commandRandomTouhouMusic);
-        this.commands.registerCommand(this.commandUploadTHPicture);
         this.commands.registerCommand(this.commandHuozi);
         this.commands.registerCommand(this.commandChoice);
         this.commands.registerCommand(this.commandFaBing);
@@ -246,7 +209,6 @@ public class EssentialBot implements JPlugin {
         this.commands.registerCommand(this.commandMarkdown);
         this.commands.registerCommand(this.commandPing);
         this.commands.registerCommand(this.commandMCS);
-        this.commands.registerCommand(this.commandCopyGroupMembers);
     }
 
     @Override

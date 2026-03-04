@@ -11,7 +11,7 @@ spring:
   application:
     name: HorainingyouBot
   datasource:
-    url: jdbc:sqlite:bot-data.db
+    url: jdbc:sqlite:bot-data.db?journal_mode=WAL
     driver-class-name: org.sqlite.JDBC
   jpa:
     database-platform: org.hibernate.community.dialect.SQLiteDialect

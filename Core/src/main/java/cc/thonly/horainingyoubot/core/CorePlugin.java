@@ -116,9 +116,9 @@ public class CorePlugin extends BotPlugin {
         if (Constants.DEV_MODE && !isDevUser(bot, event)) {
             return MESSAGE_BLOCK;
         }
-        System.out.println("==");
-        System.out.println(event.getArrayMsg());
-        System.out.println(event.getRawMessage());
+//        System.out.println("==");
+//        System.out.println(event.getArrayMsg());
+//        System.out.println(event.getRawMessage());
 
         User user = this.userManager.getOrCreate(event);
         Group group = null;
@@ -149,12 +149,13 @@ public class CorePlugin extends BotPlugin {
         if (Objects.equals(result, CommandResult.NO_PERMISSION)) {
             bot.sendMsg(event, ArrayMsgUtils.builder().reply(event.getMessageId()).text("您没有执行此命令的权限").build(), true);
         }
-        if (!user.hasAcceptedEula()) {
-            return MESSAGE_BLOCK;
-        }
         if (!Objects.equals(result, CommandResult.SUCCESS)) {
             this.coreEvent.handleBus(bot, event);
         }
+        if (!user.hasAcceptedEula()) {
+            return MESSAGE_BLOCK;
+        }
+
 //        if (event.getMessage().contains("./开启链式测试")) {
 //
 //            bot.sendMsg(event, "已启动，请连续输入 5 次", false);

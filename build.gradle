@@ -26,6 +26,10 @@ repositories {
     maven {
         url 'https://maven.aliyun.com/repository/public'
     }
+    maven {
+        name = "TarsosDSP repository"
+        url = "https://mvn.0110.be/releases"
+    }
 }
 
 dependencies {
@@ -47,6 +51,10 @@ subprojects {
         maven {
             url 'https://maven.aliyun.com/repository/public'
         }
+        maven {
+            name = "TarsosDSP repository"
+            url = "https://mvn.0110.be/releases"
+        }
     }
 
     dependencies {
@@ -56,21 +64,21 @@ subprojects {
         implementation 'org.springframework.boot:spring-boot-starter-webmvc'
         implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
-        implementation "org.jetbrains.kotlin:kotlin-stdlib:2.1.21"
-        implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1"
-        implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
-        implementation "org.jetbrains.kotlinx:kotlinx-datetime:0.5.0"
-        implementation "com.soywiz.korge:korge-core:6.0.0-beta4"
+        implementation 'org.jetbrains.kotlin:kotlin-stdlib:2.1.21'
+        implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1'
+        implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3'
+        implementation 'org.jetbrains.kotlinx:kotlinx-datetime:0.5.0'
+        implementation 'com.soywiz.korge:korge-core:6.0.0-beta4'
         implementation 'com.google.guava:guava:32.0.1-jre'
         implementation 'org.ow2.asm:asm-tree:9.4'
         implementation 'org.ow2.asm:asm-commons:9.4'
         implementation 'org.ow2.asm:asm-util:9.4'
         implementation 'com.google.code.gson:gson:2.10'
-        implementation "net.bytebuddy:byte-buddy:1.14.12"
-        implementation "net.bytebuddy:byte-buddy-agent:1.14.12"
-        implementation "org.json:json:20240303"
+        implementation 'net.bytebuddy:byte-buddy:1.14.12'
+        implementation 'net.bytebuddy:byte-buddy-agent:1.14.12'
+        implementation 'org.json:json:20240303'
         implementation 'org.apache.httpcomponents:httpclient:4.5.14'
-        implementation "com.google.code.findbugs:jsr305:3.0.2"
+        implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
@@ -79,18 +87,24 @@ subprojects {
         implementation 'org.hibernate.orm:hibernate-community-dialects'
         implementation 'com.mikuac:shiro:2.5.2'
         implementation 'com.fasterxml.jackson.core:jackson-databind'
-        implementation "com.vladsch.flexmark:flexmark-all:0.64.8"
-        implementation "com.microsoft.playwright:playwright:1.44.0"
-        implementation "net.sf.jopt-simple:jopt-simple:5.0.4"
+        implementation 'com.vladsch.flexmark:flexmark-all:0.64.8'
+        implementation 'com.microsoft.playwright:playwright:1.44.0'
+        implementation 'net.sf.jopt-simple:jopt-simple:5.0.4'
         implementation 'com.github.oshi:oshi-core:6.4.0'
         implementation 'com.github.promeg:tinypinyin:2.0.3'
         implementation 'com.github.promeg:tinypinyin-lexicons-java-cncity:2.0.3'
-        implementation files(rootProject.file("libs/HuoZiYinShua-1.0.jar"))
-        implementation files(rootProject.file("libs/mcserverping-1.0.9.jar"))
-        implementation files(rootProject.file("libs/flandre-mai-plugin-0.12.3.jar"))
-        implementation "com.zaxxer:jnb-ping:3.0.0"
+        implementation files(rootProject.file('libs/HuoZiYinShua-1.0.jar'))
+        implementation files(rootProject.file('libs/mcserverping-1.0.9.jar'))
+        implementation files(rootProject.file('libs/flandre-mai-plugin-0.12.3.jar'))
+        implementation files(rootProject.file('libs/silk4j-1.2-dev.jar'))
+        implementation 'com.zaxxer:jnb-ping:3.0.0'
         implementation 'dnsjava:dnsjava:3.6.0'
         implementation 'net.md-5:bungeecord-chat:1.16-R0.4'
+        implementation 'org.jsoup:jsoup:1.17.2'
+        implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+        implementation 'be.tarsos.dsp:core:2.5'
+        implementation 'be.tarsos.dsp:jvm:2.5'
+        implementation 'com.github.houbb:opencc4j:1.7.2'
 
         developmentOnly 'org.springframework.boot:spring-boot-devtools'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

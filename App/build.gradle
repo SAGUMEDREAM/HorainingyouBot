@@ -18,6 +18,8 @@ dependencies {
     implementation project(':EssentialBot')
     implementation project(':IntelligenceAgencies')
     implementation project(':Maimai')
+    implementation project(':OtomadHelper')
+    implementation project(':TouhouBot')
 }
 
 test {

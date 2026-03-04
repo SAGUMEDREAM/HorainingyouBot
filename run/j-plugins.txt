@@ -1,3 +1,5 @@
 cc.thonly.essential_bot.EssentialBot
 cc.thonly.intelligence_agencies.IntelligenceAgencies
 cc.thonly.maimai.Maimai
+cc.thonly.otomad_helper.OtomadHelper
+cc.thonly.touhou_bot.TouhouBot

@@ -22,11 +22,11 @@ public class UserManagerImpl {
     @Autowired
     UserRepository userRepository;
 
-    public Optional<User> getUser(long userId) {
+    public synchronized Optional<User> getUser(long userId) {
         return this.userRepository.findById(userId);
     }
 
-    public User createUser(AnyMessageEvent event) {
+    public synchronized User createUser(AnyMessageEvent event) {
         Long userId = event.getUserId();
         GroupMessageEvent.GroupSender sender = event.getSender();
 
@@ -44,7 +44,7 @@ public class UserManagerImpl {
         return this.userRepository.save(user);
     }
 
-    public User forceCreateUser(User user) {
+    public synchronized User forceCreateUser(User user) {
         if (user.getUserId() == -1L) {
             return null;
         }
@@ -52,7 +52,7 @@ public class UserManagerImpl {
         return user;
     }
 
-    public User forceCreateUser(long userId) {
+    public synchronized User forceCreateUser(long userId) {
         return this.forceCreateUser(
                 new User(userId,
                         String.valueOf(userId),
@@ -66,11 +66,11 @@ public class UserManagerImpl {
         );
     }
 
-    public void save(User user) {
+    public synchronized void save(User user) {
         this.userRepository.save(user);
     }
 
-    public User getOrCreate(AnyMessageEvent event) {
+    public synchronized User getOrCreate(AnyMessageEvent event) {
         Long userId = event.getUserId();
 
         Optional<User> byId = this.userRepository.findById(userId);
@@ -92,25 +92,25 @@ public class UserManagerImpl {
                 .orElseGet(() -> this.createUser(event));
     }
 
-    public User getOrCreate(RequestEvent event) {
+    public synchronized User getOrCreate(RequestEvent event) {
         Long userId = event.getUserId();
 
         return this.userRepository.findById(userId)
                 .orElseGet(() -> this.forceCreateUser(userId));
     }
 
-    public User getOrCreate(PokeNoticeEvent event) {
+    public synchronized User getOrCreate(PokeNoticeEvent event) {
         Long userId = event.getUserId();
 
         return this.userRepository.findById(userId)
                 .orElseGet(() -> this.forceCreateUser(userId));
     }
 
-    public List<User> findByPredicate(Predicate<User> predicate) {
+    public synchronized List<User> findByPredicate(Predicate<User> predicate) {
         return this.userRepository.findAll().stream().filter(predicate).toList();
     }
 
-    public boolean hasUser(long userId) {
+    public synchronized boolean hasUser(long userId) {
         return this.userRepository.existsById(userId);
     }
 }

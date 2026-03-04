@@ -8,6 +8,7 @@ import cc.thonly.horainingyoubot.data.db.User;
 import cc.thonly.essential_bot.view.custom.SignResult;
 import cc.thonly.essential_bot.view.custom.SignView;
 import cc.thonly.horainingyoubot.service.UserManagerImpl;
+import com.mikuac.shiro.common.utils.MsgUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Command
@@ -29,10 +30,11 @@ public class CommandSign implements CommandEntrypoint {
                                 bot.sendMsg(event, "你今天已经签到过了哦，别忘了明天再来！", false);
                                 return;
                             }
-                            String msg = "签到成功！🎉\n";
+                            String component = MsgUtils.builder().reply(event.getMessageId()).at(event.getUserId()).build();
+                            String msg = component + "签到成功！🎉\n";
                             msg += "基础奖励：" + result.baseReward + " 円\n";
                             msg += "暴击倍率：×" + result.criticalRate + "\n";
-                            msg += "最终奖励：" + result.finalReward + " 円\n";
+                            msg += "最终奖励：" + result.finalReward + " 円";
                             bot.sendMsg(event, msg, false);
                         })
         );

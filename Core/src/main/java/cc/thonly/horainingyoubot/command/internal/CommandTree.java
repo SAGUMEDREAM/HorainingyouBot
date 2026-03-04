@@ -29,7 +29,7 @@ public class CommandTree implements CommandEntrypoint {
                             if (command == null) {
                                 return;
                             }
-                            Map<String, CommandNode> root2Node = this.commands.getRoot2Node();
+                            Map<String, CommandNode> root2Node = this.commands.getRoot2NodeUnmodified();
                             String[] split = command.split(" ");
                             if (split.length == 0) {
                                 return;

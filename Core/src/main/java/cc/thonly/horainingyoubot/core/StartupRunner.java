@@ -22,7 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @Component
 public class StartupRunner implements CommandLineRunner {
@@ -63,6 +67,17 @@ public class StartupRunner implements CommandLineRunner {
         this.internalCommands.accept(this.commands);
         this.jPluginLoader.unloadPlugins();
         this.jPluginLoader.loadPlugins();
+        Map<String, CommandNode> root2Node = this.commands.getRoot2Node();
+        Map<String, CommandNode> sortedMap = root2Node.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue,
+                        LinkedHashMap::new
+                ));
+        this.commands.modify(sortedMap);
     }
 
     void test() {

@@ -27,6 +27,7 @@ public class CommandB50 implements CommandEntrypoint {
                 CommandNode.createRoot("b50")
                         .withExecutor((bot, event, args) -> {
                             Long userId = event.getUserId();
+                            MsgTool.reply(bot, event, "生成中，请稍后...");
                             BufferedImage image = DivingFishB50Generator.generate(userId);
                             try {
                                 byte[] data = Maimai.image2Bytes(image, "png");
@@ -41,7 +42,7 @@ public class CommandB50 implements CommandEntrypoint {
                             if (userOptional.isEmpty()) {
                                 return;
                             }
-
+                            MsgTool.reply(bot, event, "生成中，请稍后...");
                             User user = userOptional.get();
                             BufferedImage image = DivingFishB50Generator.generate(user.getUserId());
                             try {

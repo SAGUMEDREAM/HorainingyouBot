@@ -18,11 +18,11 @@ public class GroupManagerImpl {
     @Autowired
     GroupRepository groupRepository;
 
-    public Optional<Group> getGroup(long groupId) {
+    public synchronized Optional<Group> getGroup(long groupId) {
         return this.groupRepository.findById(groupId);
     }
 
-    public Group createGroup(AnyMessageEvent event) {
+    public synchronized Group createGroup(AnyMessageEvent event) {
         Long groupId = event.getGroupId();
         if (groupId == null) {
             return null;
@@ -36,7 +36,7 @@ public class GroupManagerImpl {
         return group;
     }
 
-    public Group forceCreateGroup(Group group) {
+    public synchronized Group forceCreateGroup(Group group) {
         Long groupId = group.getGroupId();
         if (groupId == null) {
             return null;
@@ -45,11 +45,11 @@ public class GroupManagerImpl {
         return group;
     }
 
-    public Group forceCreateGroup(long userId) {
+    public synchronized Group forceCreateGroup(long userId) {
         return this.forceCreateGroup(new Group(userId, false, new ArrayList<>(), new CustomData()));
     }
 
-    public Group getOrCreate(AnyMessageEvent event) {
+    public synchronized Group getOrCreate(AnyMessageEvent event) {
         Long groupId = event.getGroupId();
         if (groupId == null) {
             return null;
@@ -59,12 +59,12 @@ public class GroupManagerImpl {
                 .orElseGet(() -> this.createGroup(event));
     }
 
-    public List<Group> findByPredicate(Predicate<Group> predicate) {
+    public synchronized List<Group> findByPredicate(Predicate<Group> predicate) {
         return this.groupRepository.findAll().stream().filter(predicate).toList();
     }
 
 
-    public void save(Group group) {
+    public synchronized void save(Group group) {
         this.groupRepository.save(group);
     }
 }

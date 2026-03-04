@@ -34,7 +34,7 @@ public class CommandHelp implements CommandEntrypoint {
                             }
 
                             if (Objects.equals(command, "all")) {
-                                Map<String, CommandNode> root2Node = this.commands.getRoot2Node();
+                                Map<String, CommandNode> root2Node = this.commands.getRoot2NodeUnmodified();
                                 List<String> allCommands = new ArrayList<>();
                                 for (Map.Entry<String, CommandNode> mapEntry : root2Node.entrySet()) {
                                     CommandNode node = mapEntry.getValue();
@@ -59,7 +59,7 @@ public class CommandHelp implements CommandEntrypoint {
                             }
 
                             List<String> cmdResults = new ArrayList<>();
-                            Map<String, CommandNode> root2Node = this.commands.getRoot2Node();
+                            Map<String, CommandNode> root2Node = this.commands.getRoot2NodeUnmodified();
                             CommandNode root = root2Node.get(split.get(0));
                             if (root == null) {
                                 MsgTool.reply(bot, event, ArrayMsgUtils.builder().text("找不到命令: " + split.get(0)).build());

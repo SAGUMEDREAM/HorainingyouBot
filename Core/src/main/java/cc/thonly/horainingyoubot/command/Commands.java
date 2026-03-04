@@ -4,7 +4,6 @@ import cc.thonly.horainingyoubot.service.GroupManagerImpl;
 import cc.thonly.horainingyoubot.service.UserManagerImpl;
 import com.mikuac.shiro.common.utils.ArrayMsgUtils;
 import com.mikuac.shiro.core.Bot;
-import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
 import com.mikuac.shiro.dto.event.message.GroupMessageEvent;
 import com.mikuac.shiro.enums.MsgTypeEnum;
 import com.mikuac.shiro.model.ArrayMsg;
@@ -15,12 +14,12 @@ import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
 
 import java.util.*;
-import java.util.function.Consumer;
 
+@SuppressWarnings("LombokGetterMayBeUsed")
 @Slf4j
 @Component
 public class Commands {
-    private final Map<String, CommandNode> root2Node = new LinkedHashMap<>(128);
+    private Map<String, CommandNode> root2Node = new LinkedHashMap<>(128);
 
     @Autowired
     UserManagerImpl userManager;
@@ -46,8 +45,16 @@ public class Commands {
         this.root2Node.clear();
     }
 
-    public Map<String, CommandNode> getRoot2Node() {
+    public Map<String, CommandNode> getRoot2NodeUnmodified() {
         return Map.copyOf(this.root2Node);
+    }
+
+    public Map<String, CommandNode> getRoot2Node() {
+        return this.root2Node;
+    }
+
+    public void modify(Map<String, CommandNode> map) {
+        this.root2Node = map;
     }
 
     @Nullable

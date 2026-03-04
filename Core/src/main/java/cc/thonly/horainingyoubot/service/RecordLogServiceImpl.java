@@ -19,15 +19,15 @@ public class RecordLogServiceImpl {
     @Autowired
     RecordLogRepository repository;
 
-    public List<RecordLog> getByType(String type) {
+    public synchronized List<RecordLog> getByType(String type) {
         return this.repository.findAllByType(type);
     }
 
-    public List<RecordLog> getLatest(String type, int limit) {
+    public synchronized List<RecordLog> getLatest(String type, int limit) {
         return repository.findTopNByTypeOrderByTimeDesc(type, Limit.of(limit));
     }
 
-    public <T> List<T> getInfoJsonObject(String type, Class<T> tClass) {
+    public synchronized <T> List<T> getInfoJsonObject(String type, Class<T> tClass) {
         return this.getByType(type).stream()
                 .map(recordLog -> {
                     try {
@@ -41,7 +41,7 @@ public class RecordLogServiceImpl {
                 .toList();
     }
 
-    public void writeRecordLog(String type, String info) {
+    public synchronized void writeRecordLog(String type, String info) {
         RecordLog recordLog = new RecordLog();
         recordLog.setType(type);
         recordLog.setTime(LocalDateTime.now());

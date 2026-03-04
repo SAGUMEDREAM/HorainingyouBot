@@ -13,12 +13,15 @@ import com.mikuac.shiro.enums.MsgTypeEnum;
 import com.mikuac.shiro.model.ArrayMsg;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.imageio.ImageIO;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URI;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.http.*;
@@ -26,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -52,6 +56,31 @@ public class MsgTool {
         return HttpClients.custom()
                 .setSSLSocketFactory(sslSocketFactory)
                 .build();
+    }
+
+    public static byte[] getImageFromUrl(String url) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            try {
+
+                URL imageUrl = URI.create(url).toURL();
+
+                BufferedImage image = ImageIO.read(imageUrl);
+
+                if (image != null) {
+                    ImageIO.write(image, "PNG", baos);
+                    baos.flush();
+                    return baos.toByteArray();
+                } else {
+                    throw new IOException("Failed to read image from URL.");
+                }
+            } catch (IOException e) {
+                log.error("Error: ", e);
+                return null;
+            }
+        } catch (IOException e) {
+            log.error("Error: ", e);
+            return null;
+        }
     }
 
     public static Integer getReplyMessageId(Bot bot, AnyMessageEvent event) {
@@ -199,6 +228,55 @@ public class MsgTool {
         return result;
     }
 
+    public static boolean contains(List<ArrayMsg> arrayMsgs, String str) {
+        Stream<String> arrayMsgStream = arrayMsgs.stream()
+                .filter(item -> item.getType() == MsgTypeEnum.text)
+                .map(MsgTool::_getText);
+        List<String> list = arrayMsgStream.toList();
+        for (String s : list) {
+            if (s.contains(str)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean startsWith(List<ArrayMsg> arrayMsgs, String str) {
+        Stream<String> arrayMsgStream = arrayMsgs.stream()
+                .filter(item -> item.getType() == MsgTypeEnum.text)
+                .map(MsgTool::_getText);
+        List<String> list = arrayMsgStream.toList();
+        if (list.isEmpty()) {
+            return false;
+        }
+        String first = list.getFirst();
+        return first.startsWith(str);
+    }
+
+    public static boolean endsWith(List<ArrayMsg> arrayMsgs, String str) {
+        Stream<String> arrayMsgStream = arrayMsgs.stream()
+                .filter(item -> item.getType() == MsgTypeEnum.text)
+                .map(MsgTool::_getText);
+        List<String> list = arrayMsgStream.toList();
+        if (list.isEmpty()) {
+            return false;
+        }
+        String first = list.getFirst();
+        return first.endsWith(str);
+    }
+
+    public static String _getText(ArrayMsg arrayMsg) {
+        if (!(arrayMsg.getType() == MsgTypeEnum.text)) {
+            return null;
+        }
+        JsonNode data = arrayMsg.getData();
+        JsonNode text = data.get("text");
+        if (text == null) {
+            return null;
+        }
+        return text.asString();
+    }
+
     public static ArrayMsg reply(AnyMessageEvent event) {
         return ArrayMsgUtils.builder().reply(event.getMessageId()).build().getFirst();
     }
@@ -280,5 +358,17 @@ public class MsgTool {
 
     public static MsgUtils createMessage() {
         return MsgUtils.builder();
+    }
+
+    public static String toString(List<ArrayMsg> arrayMsg) {
+        StringBuilder sb = new StringBuilder();
+        Stream<ArrayMsg> arrayMsgStream = arrayMsg.stream().filter(item -> item.getType() == MsgTypeEnum.text);
+        arrayMsgStream.forEach(item -> {
+            JsonNode textNode = item.getData().get("text");
+            if (textNode.isString()) {
+                sb.append(textNode.asString());
+            }
+        });
+        return sb.toString();
     }
 }
