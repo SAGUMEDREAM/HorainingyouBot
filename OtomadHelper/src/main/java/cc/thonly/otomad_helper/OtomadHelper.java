@@ -26,7 +26,7 @@ public class OtomadHelper implements JPlugin {
         this.hasPython = this.checkPython();
         this.checkPythonDep();
         this.ifNotExistRelease("./static/script/BpmDetector.py", "./script/BpmDetector.py");
-        this.ifNotExistRelease("./static/script/PitchCorrection4Mirai.py", "./PitchCorrection4Mirai.py");
+        this.ifNotExistRelease("./static/script/PitchCorrection4Mirai.py", "./script/PitchCorrection4Mirai.py");
         this.registerCommands(this.commands);
     }
 

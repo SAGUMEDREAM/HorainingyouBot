@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -25,21 +26,24 @@ public class THPlayListServiceImpl {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
 
-            URL resource = THPlayListServiceImpl.class.getClassLoader().getResource("static/assets/thplaylist.json");
-            if (resource == null) {
+            InputStream inputStream = THPlayListServiceImpl.class
+                    .getClassLoader()
+                    .getResourceAsStream("static/assets/thplaylist.json");
+
+            if (inputStream == null) {
                 throw new IOException("资源文件 thplaylist.json 未找到");
             }
 
-            File file = Paths.get(resource.toURI()).toFile();
-            this.assets = objectMapper.readValue(file, THPlayListObject.class);
+            this.assets = objectMapper.readValue(inputStream, THPlayListObject.class);
 
             for (GameObject game : assets.getData()) {
                 for (MusicObject music : game.getPlaylist()) {
                     music.setFrom(game.getName());
                 }
             }
+
         } catch (Exception e) {
-            log.error("Can't load file: ", e);
+            log.error("Can't load file:", e);
         }
     }
 
