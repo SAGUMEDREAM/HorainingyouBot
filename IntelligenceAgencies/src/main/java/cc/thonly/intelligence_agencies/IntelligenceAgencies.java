@@ -44,7 +44,6 @@ public class IntelligenceAgencies implements JPlugin {
     @Autowired
     CollectCacheRepository collectCacheRepository;
 
-
     final Path keywordPath = Path.of("./data/collect_keyword.txt");
     final Path targetGroup = Path.of("./data/forward_target_group.txt");
     final Path blacklistGroup = Path.of("./data/forward_blacklist_group.txt");

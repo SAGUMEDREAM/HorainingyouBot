@@ -29,7 +29,8 @@ public class CommandHelp implements CommandEntrypoint {
                         .withExecutor((bot, event, args) -> {
                             String command = args.getString("command");
                             if (command == null || command.isBlank()) {
-                                MsgTool.reply(bot, event, ArrayMsgUtils.builder().text("请输入命令名称").build());
+                                MarkdownImage image = this.markdownImageFactory.render(this.getHelpMarkdown());
+                                MsgTool.reply(bot, event, ArrayMsgUtils.builder().img(image.get()).build());
                                 return;
                             }
 
@@ -99,6 +100,10 @@ public class CommandHelp implements CommandEntrypoint {
                             MsgTool.reply(bot, event, ArrayMsgUtils.builder().img(render.get()).build());
                         })
         );
+    }
+
+    private String getHelpMarkdown() {
+        return "";
     }
 
     private void buildPaths(CommandNode node, List<String> result) {

@@ -31,7 +31,7 @@ public class CommandSign implements CommandEntrypoint {
                                 return;
                             }
                             String component = MsgUtils.builder().reply(event.getMessageId()).at(event.getUserId()).build();
-                            String msg = component + "签到成功！🎉\n";
+                            String msg = component + " 签到成功！🎉\n";
                             msg += "基础奖励：" + result.baseReward + " 円\n";
                             msg += "暴击倍率：×" + result.criticalRate + "\n";
                             msg += "最终奖励：" + result.finalReward + " 円";

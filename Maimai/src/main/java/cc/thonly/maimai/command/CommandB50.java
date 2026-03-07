@@ -26,7 +26,13 @@ public class CommandB50 implements CommandEntrypoint {
         commands.registerCommand(
                 CommandNode.createRoot("b50")
                         .withExecutor((bot, event, args) -> {
-                            Long userId = event.getUserId();
+                            Optional<User> userOptional = args.getUser("user_id");
+                            Long userId = null;
+                            if (userOptional.isEmpty()) {
+                                userId = event.getUserId();
+                            } else {
+                                userId = userOptional.get().getUserId();
+                            }
                             MsgTool.reply(bot, event, "生成中，请稍后...");
                             BufferedImage image = DivingFishB50Generator.generate(userId);
                             try {
@@ -36,23 +42,6 @@ public class CommandB50 implements CommandEntrypoint {
                                 log.error("Error: ", e);
                             }
                         })
-                        .up()
-                        .addNode("other", (bot, event, args) -> {
-                            Optional<User> userOptional = args.getUser("user_id");
-                            if (userOptional.isEmpty()) {
-                                return;
-                            }
-                            MsgTool.reply(bot, event, "生成中，请稍后...");
-                            User user = userOptional.get();
-                            BufferedImage image = DivingFishB50Generator.generate(user.getUserId());
-                            try {
-                                byte[] data = Maimai.image2Bytes(image, "png");
-                                MsgTool.reply(bot, event, MsgTool.img(data));
-                            } catch (Exception e) {
-                                log.error("Error: ", e);
-                            }
-                        })
-                        .withArguments("#{user_id}")
                         .up()
         );
 
