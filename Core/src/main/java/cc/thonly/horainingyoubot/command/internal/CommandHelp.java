@@ -6,6 +6,7 @@ import cc.thonly.horainingyoubot.command.Command;
 import cc.thonly.horainingyoubot.command.CommandEntrypoint;
 import cc.thonly.horainingyoubot.command.CommandNode;
 import cc.thonly.horainingyoubot.command.Commands;
+import cc.thonly.horainingyoubot.service.DataManagerImpl;
 import cc.thonly.horainingyoubot.util.MsgTool;
 import com.mikuac.shiro.common.utils.ArrayMsgUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,11 @@ public class CommandHelp implements CommandEntrypoint {
     @Autowired
     MarkdownImageFactory markdownImageFactory;
 
+    @Autowired
+    DataManagerImpl dataManager;
+
+    byte[] helpImage = null;
+
     @Override
     public void registerCommand(Commands commands) {
         commands.registerCommand(
@@ -29,8 +35,11 @@ public class CommandHelp implements CommandEntrypoint {
                         .withExecutor((bot, event, args) -> {
                             String command = args.getString("command");
                             if (command == null || command.isBlank()) {
-                                MarkdownImage image = this.markdownImageFactory.render(this.getHelpMarkdown());
-                                MsgTool.reply(bot, event, ArrayMsgUtils.builder().img(image.get()).build());
+                                if (this.helpImage == null) {
+                                    MarkdownImage image = this.markdownImageFactory.render(this.getHelpMarkdownText());
+                                    this.helpImage = image.get();
+                                }
+                                MsgTool.reply(bot, event, ArrayMsgUtils.builder().img(this.helpImage).build());
                                 return;
                             }
 
@@ -102,8 +111,12 @@ public class CommandHelp implements CommandEntrypoint {
         );
     }
 
-    private String getHelpMarkdown() {
-        return "";
+    private String getHelpMarkdownText() {
+        String text = this.dataManager.getText("help.md");
+        if (text == null) {
+            return "";
+        }
+        return text;
     }
 
     private void buildPaths(CommandNode node, List<String> result) {

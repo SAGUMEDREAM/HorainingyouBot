@@ -4,6 +4,9 @@ import cc.thonly.horainingyoubot.data.db.CustomData;
 import cc.thonly.horainingyoubot.data.db.User;
 import cc.thonly.horainingyoubot.repository.UserRepository;
 import cc.thonly.horainingyoubot.util.MsgTool;
+import com.mikuac.shiro.core.Bot;
+import com.mikuac.shiro.dto.action.common.ActionData;
+import com.mikuac.shiro.dto.action.response.StrangerInfoResp;
 import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
 import com.mikuac.shiro.dto.event.message.GroupMessageEvent;
 import com.mikuac.shiro.dto.event.notice.PokeNoticeEvent;
@@ -66,6 +69,35 @@ public class UserManagerImpl {
         );
     }
 
+    public synchronized User forceCreateUser(Bot bot, long userId) {
+        ActionData<StrangerInfoResp> strangerInfo = bot.getStrangerInfo(userId, false);
+        if (strangerInfo.getRetCode() != 0) {
+            return this.forceCreateUser(
+                    new User(userId,
+                            String.valueOf(userId),
+                            MsgTool.getUserAvatar(userId),
+                            false,
+                            false,
+                            1,
+                            new ArrayList<>(),
+                            new CustomData()
+                    )
+            );
+        }
+        StrangerInfoResp data = strangerInfo.getData();
+        return this.forceCreateUser(
+                new User(userId,
+                        data.getNickname(),
+                        MsgTool.getUserAvatar(userId),
+                        false,
+                        false,
+                        1,
+                        new ArrayList<>(),
+                        new CustomData()
+                )
+        );
+    }
+
     public synchronized void save(User user) {
         this.userRepository.save(user);
     }
@@ -90,6 +122,16 @@ public class UserManagerImpl {
         }
         return this.userRepository.findById(userId)
                 .orElseGet(() -> this.createUser(event));
+    }
+
+    public synchronized User getOrCreate(Bot bot, Long userId) {
+        return this.userRepository.findById(userId)
+                .orElseGet(() -> this.forceCreateUser(bot, userId));
+    }
+
+    public synchronized User getOrCreate(Long userId) {
+        return this.userRepository.findById(userId)
+                .orElseGet(() -> this.forceCreateUser(userId));
     }
 
     public synchronized User getOrCreate(RequestEvent event) {

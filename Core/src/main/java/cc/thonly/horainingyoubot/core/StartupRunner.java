@@ -7,6 +7,7 @@ import cc.thonly.horainingyoubot.config.BotProperties;
 import cc.thonly.horainingyoubot.controller.TempFileController;
 import cc.thonly.horainingyoubot.event.internal.EventBusFactory;
 import cc.thonly.horainingyoubot.browser.CSSTools;
+import cc.thonly.horainingyoubot.service.DataManagerImpl;
 import cc.thonly.horainingyoubot.util.DeferTask;
 import com.microsoft.playwright.*;
 import com.mikuac.shiro.common.utils.ArrayMsgUtils;
@@ -19,13 +20,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Component
@@ -40,6 +40,8 @@ public class StartupRunner implements CommandLineRunner {
     InternalCommands internalCommands;
     @Autowired
     BotProperties botProperties;
+    @Autowired
+    DataManagerImpl dataManager;
 
     @SneakyThrows
     @Override
@@ -59,6 +61,9 @@ public class StartupRunner implements CommandLineRunner {
             if (Files.notExists(path)) {
                 Files.createDirectory(path);
             }
+        }
+        if (!this.dataManager.exists("help.md")) {
+            this.dataManager.save("help.md", "".getBytes(StandardCharsets.UTF_8));
         }
         DeferTask.TASKS.clear();
         this.tempFileController.clear();

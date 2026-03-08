@@ -38,6 +38,9 @@ public class CommandTHWiki implements CommandEntrypoint {
                         .withArguments("#{keyword}")
                         .withExecutor((bot, event, args) -> {
                             String keyword = args.getString("keyword");
+                            if (keyword == null) {
+                                return;
+                            }
                             this.search(bot, event, keyword);
                         })
         );

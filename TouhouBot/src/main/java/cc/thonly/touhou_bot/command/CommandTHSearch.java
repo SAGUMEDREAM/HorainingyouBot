@@ -204,7 +204,7 @@ public class CommandTHSearch implements CommandEntrypoint {
             String sb = "名称: " + r.getName() + "\n" +
                     "地区: " + r.getArea() + "\n" +
                     "日期: " + r.getTime() + "\n" +
-                    "群号: " + r.getGroupId() + "\n";
+                    "群号: " + r.getGroupId();
             messages.add(sb);
         }
         List<Map<String, Object>> messageMerging = MsgTool.createForwardMsg(bot.getSelfId(), "蓬莱人形Bot", messages);

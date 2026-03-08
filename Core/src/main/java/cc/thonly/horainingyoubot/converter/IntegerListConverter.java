@@ -8,12 +8,15 @@ import jakarta.persistence.Converter;
 import java.util.List;
 
 @Converter
-public class StringListConverter implements AttributeConverter<List<String>, String> {
+public class IntegerListConverter implements AttributeConverter<List<Integer>, String> {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public String convertToDatabaseColumn(List<String> attribute) {
+    public String convertToDatabaseColumn(List<Integer> attribute) {
+        if (attribute == null) {
+            return null;
+        }
         try {
             return mapper.writeValueAsString(attribute);
         } catch (Exception e) {
@@ -22,10 +25,12 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
     }
 
     @Override
-    public List<String> convertToEntityAttribute(String dbData) {
+    public List<Integer> convertToEntityAttribute(String dbData) {
+        if (dbData == null || dbData.isEmpty()) {
+            return List.of();
+        }
         try {
-            return mapper.readValue(dbData, new TypeReference<>() {
-            });
+            return mapper.readValue(dbData, new TypeReference<List<Integer>>() {});
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

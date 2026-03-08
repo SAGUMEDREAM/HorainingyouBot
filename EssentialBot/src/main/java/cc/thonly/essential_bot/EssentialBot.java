@@ -186,6 +186,12 @@ public class EssentialBot implements JPlugin {
     CommandPing commandPing;
     @Autowired
     CommandMCS commandMCS;
+    @Autowired
+    CommandDailyWife commandDailyWife;
+    @Autowired
+    CommandGetWife commandGetWife;
+    @Autowired
+    CommandDivorce commandDivorce;
 
     private void registerCommands() {
         this.commands.registerCommand(this.commandLeaveMessage);
@@ -209,6 +215,9 @@ public class EssentialBot implements JPlugin {
         this.commands.registerCommand(this.commandMarkdown);
         this.commands.registerCommand(this.commandPing);
         this.commands.registerCommand(this.commandMCS);
+        this.commands.registerCommand(this.commandDailyWife);
+        this.commands.registerCommand(this.commandGetWife);
+        this.commands.registerCommand(this.commandDivorce);
     }
 
     @Override
