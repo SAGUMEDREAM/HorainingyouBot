@@ -32,8 +32,8 @@ public class CommandNewtone implements CommandEntrypoint {
                                 if (!(first.getType() == MsgTypeEnum.unknown)) return;
 
                                 JsonNode data = first.getData();
-                                String fileId = data.get("file_id").asText();
-                                String originalName = data.has("file_name") ? data.get("file_name").asText() : "audio.wav";
+                                String fileId = data.get("file_id").asString();
+                                String originalName = data.has("file_name") ? data.get("file_name").asString() : "audio.wav";
                                 byte[] audioBytes = BotActionExtend.download(bot, event, fileId);
 
 //                                if (!OtomadHelper.isAudioBytes(audioBytes)) {

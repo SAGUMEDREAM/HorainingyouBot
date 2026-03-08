@@ -1,5 +1,7 @@
 package cc.thonly.horainingyoubot.util;
 
+import cc.thonly.horainingyoubot.controller.TempFileController;
+import cc.thonly.horainingyoubot.core.SpringContextHolder;
 import cc.thonly.horainingyoubot.data.db.User;
 import cc.thonly.horainingyoubot.event.internal.EventResult;
 import com.mikuac.shiro.common.utils.ArrayMsgUtils;
@@ -206,6 +208,12 @@ public class MsgTool {
 
     public static ArrayMsg voice(String url) {
         return ArrayMsgUtils.builder().voice(url).build().getFirst();
+    }
+
+    public static ArrayMsg voice(byte[] bytes) {
+        TempFileController bean = SpringContextHolder.getBean(TempFileController.class);
+        UUID audioId = bean.saveFile(bytes);
+        return ArrayMsgUtils.builder().voice("http://127.0.0.1:9920/api/temp_file/get_voice/%s".formatted(audioId)).build().getFirst();
     }
 
     public static ArrayMsg at(Long userId) {

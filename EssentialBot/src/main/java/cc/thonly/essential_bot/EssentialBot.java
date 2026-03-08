@@ -53,7 +53,9 @@ public class EssentialBot implements JPlugin {
                     || comment.contains("请同意")
                     || comment.contains("进群交流")
                     || comment.contains("谢谢！！！")
-                    || comment.contains("通过一下")) {
+                    || comment.contains("通过一下")
+                    || comment.contains("通过下")
+            ) {
                 bot.setGroupAddRequest(requestEvent.getFlag(), requestEvent.getSubType(), false, "自动处理");
                 return EventResult.PASS;
             }

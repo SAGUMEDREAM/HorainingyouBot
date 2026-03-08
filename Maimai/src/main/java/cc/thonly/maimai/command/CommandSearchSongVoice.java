@@ -5,9 +5,12 @@ import cc.thonly.horainingyoubot.command.Command;
 import cc.thonly.horainingyoubot.command.CommandEntrypoint;
 import cc.thonly.horainingyoubot.command.CommandNode;
 import cc.thonly.horainingyoubot.command.Commands;
+import cc.thonly.horainingyoubot.controller.TempFileController;
+import cc.thonly.horainingyoubot.util.HTTPReq;
 import cc.thonly.horainingyoubot.util.LinkedMessage;
 import cc.thonly.horainingyoubot.util.MsgTool;
 import cc.thonly.maimai.Maimai;
+import com.mikuac.shiro.common.utils.ArrayMsgUtils;
 import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
 import io.lemonjuice.flan_mai_plugin.api.SongInfoGenerator;
 import io.lemonjuice.flan_mai_plugin.model.Song;
@@ -16,19 +19,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Command
-public class CommandSearchSong implements CommandEntrypoint {
+public class CommandSearchSongVoice implements CommandEntrypoint {
+    @Autowired
+    MarkdownImageFactory markdownImageFactory;
+
+    @Autowired
+    TempFileController tempFileController;
 
     @Override
     public void registerCommand(Commands commands) {
         commands.registerCommand(
-                CommandNode.createRoot("查歌")
+                CommandNode.createRoot("点歌")
                         .withArguments("#{keyword}")
                         .withExecutor((bot, event, args) -> {
                             String keyword = args.getString("keyword");
@@ -75,11 +83,13 @@ public class CommandSearchSong implements CommandEntrypoint {
                                     bot.sendMsg(event, "已取消", false);
                                     return;
                                 }
-                                BufferedImage image = SongInfoGenerator.generate(song.id);
+                                String api = "https://assets2.lxns.net/maimai/music/%s.mp3".formatted(song.id);
+                                byte[] bytes = HTTPReq.downloadFile(api);
+                                UUID audioId = this.tempFileController.saveFile(bytes);
                                 try {
-                                    byte[] data = Maimai.image2Bytes(image, "png");
-                                    MsgTool.reply(bot, event, MsgTool.img(data));
+                                    bot.sendMsg(event, ArrayMsgUtils.builder().voice("http://127.0.0.1:9920/api/temp_file/get_voice/%s".formatted(audioId)).build(), false);
                                 } catch (Exception e) {
+                                    MsgTool.reply(bot, event, "获取失败");
                                     log.error("Error: ", e);
                                 }
                             });

@@ -93,6 +93,8 @@ subprojects {
         implementation 'com.github.oshi:oshi-core:6.4.0'
         implementation 'com.github.promeg:tinypinyin:2.0.3'
         implementation 'com.github.promeg:tinypinyin-lexicons-java-cncity:2.0.3'
+        implementation "cn.hutool:hutool-core:5.8.26"
+
         implementation files(rootProject.file('libs/HuoZiYinShua-1.0.jar'))
         implementation files(rootProject.file('libs/mcserverping-1.0.9.jar'))
         implementation files(rootProject.file('libs/flandre-mai-plugin-0.12.3.jar'))

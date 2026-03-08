@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -106,7 +107,7 @@ public class CommandBilibili implements CommandEntrypoint {
     }
 
     private void downloadFile(String urlStr, Path target) throws IOException {
-        URL url = new URL(urlStr);
+        URL url = URI.create(urlStr).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestProperty("User-Agent", "Mozilla/5.0");
         try (InputStream in = conn.getInputStream(); OutputStream out = Files.newOutputStream(target)) {

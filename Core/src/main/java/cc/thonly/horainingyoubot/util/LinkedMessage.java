@@ -2,7 +2,12 @@ package cc.thonly.horainingyoubot.util;
 
 import com.mikuac.shiro.core.Bot;
 import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
+import com.mikuac.shiro.enums.MsgTypeEnum;
+import com.mikuac.shiro.model.ArrayMsg;
+import lombok.AllArgsConstructor;
+import tools.jackson.databind.JsonNode;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.function.BiConsumer;
@@ -77,6 +82,22 @@ public class LinkedMessage {
     private static String key(AnyMessageEvent e) {
         String group = e.getGroupId() == null ? "private" : String.valueOf(e.getGroupId());
         return group + ":" + e.getUserId();
+    }
+
+    public static FileInfo getNextFile(String fileType, Bot bot, AnyMessageEvent event, LinkedMessage.Context ctx) {
+        MsgTool.reply(bot, event, "请发送%s文件".formatted(fileType));
+        AnyMessageEvent next = ctx.waitNext(45);
+        List<ArrayMsg> arrayMsg = next.getArrayMsg();
+        ArrayMsg first = arrayMsg.getFirst();
+        if (!(first.getType() == MsgTypeEnum.unknown)) {
+            return null;
+        }
+
+        JsonNode data = first.getData();
+        String fileId = data.get("file_id").asString();
+        String originalName = data.has("file_name") ? data.get("file_name").asString() : "a_file";
+        byte[] audioBytes = BotActionExtend.download(bot, event, fileId);
+        return new FileInfo(originalName, audioBytes);
     }
 
     // =========================
@@ -171,5 +192,11 @@ public class LinkedMessage {
             this.cancelled = true;
             this.queue.clear();
         }
+    }
+
+    @AllArgsConstructor
+    public static class FileInfo {
+        public final String originalName;
+        public final byte[] fileBytes;
     }
 }

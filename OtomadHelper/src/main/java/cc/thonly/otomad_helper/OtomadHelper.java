@@ -13,7 +13,12 @@ import java.nio.file.Files;
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class OtomadHelper implements JPlugin {
     private static final String[] DEPENDENCIES = {
-            "numpy", "scipy", "PyWavelets", "soundfile", "pyworld"
+            "numpy",
+            "scipy",
+            "soundfile",
+            "pyworld",
+            "mido",
+            "cffi"
     };
 
     @Autowired
@@ -27,6 +32,7 @@ public class OtomadHelper implements JPlugin {
         this.checkPythonDep();
         this.ifNotExistRelease("./static/script/BpmDetector.py", "./script/BpmDetector.py");
         this.ifNotExistRelease("./static/script/PitchCorrection4Mirai.py", "./script/PitchCorrection4Mirai.py");
+        this.ifNotExistRelease("./static/script/mel.py", "./script/mel.py");
         this.registerCommands(this.commands);
     }
 
@@ -54,6 +60,8 @@ public class OtomadHelper implements JPlugin {
     CommandMaiFriend commandMaiFriend;
     @Autowired
     CommandMaiAwake commandMaiAwake;
+    @Autowired
+    CommandCreateOtomad commandCreateOtomad;
 
     @Override
     public void registerCommands(Commands commands) {
@@ -70,6 +78,7 @@ public class OtomadHelper implements JPlugin {
         if (this.hasPython) {
             commands.registerCommand(this.commandNewtone);
             commands.registerCommand(this.commandBpmDetector);
+            commands.registerCommand(this.commandCreateOtomad);
         }
     }
 

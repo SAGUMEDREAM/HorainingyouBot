@@ -48,9 +48,6 @@ public class MessageHandlerImpl {
             bot.sendMsg(event, ArrayMsgUtils.builder().reply(event.getMessageId()).text(String.join("", CommandEula.getText())).build(), false);
             return CommandResult.PASS;
         }
-//        else {
-//            this.coreEvent.handleBus(bot, event);
-//        }
         try {
             executor.execute(bot, event, arguments);
         } catch (Exception e) {

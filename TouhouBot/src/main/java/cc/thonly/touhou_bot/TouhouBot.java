@@ -91,6 +91,8 @@ public class TouhouBot implements JPlugin {
     CommandGroupSearch commandGroupSearch;
     @Autowired
     CommandLilySearch commandLilySearch;
+    @Autowired
+    CommandVoice commandVoice;
 
     @Override
     public void registerCommands(Commands commands) {
@@ -102,6 +104,7 @@ public class TouhouBot implements JPlugin {
         this.commands.registerCommand(this.commandTHWiki);
         this.commands.registerCommand(this.commandLilySearch);
         this.commands.registerCommand(this.commandJrrp);
+        this.commands.registerCommand(this.commandVoice);
     }
 
     @Override

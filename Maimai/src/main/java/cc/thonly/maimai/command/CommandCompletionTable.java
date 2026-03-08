@@ -20,28 +20,17 @@ public class CommandCompletionTable implements CommandEntrypoint {
     @Override
     public void registerCommand(Commands commands) {
         commands.registerCommand(
-                CommandNode.createRoot("生成牌子")
-                        .withArguments("#{name}")
+                CommandNode.createRoot("牌子")
+                        .withArguments("#{name} #{user}")
                         .withExecutor((bot, event, args) -> {
                             String name = args.getString("name");
-                            Long userId = event.getUserId();
-                            BufferedImage image = CompletionTableGenerator.generateWithPlates(userId, name);
-                            try {
-                                byte[] data = Maimai.image2Bytes(image, "png");
-                                MsgTool.reply(bot, event, MsgTool.img(data));
-                            } catch (Exception e) {
-                                log.error("Error: ", e);
-                            }
-                        })
-                        .up()
-                        .addNode("other", (bot, event, args) -> {
                             Optional<User> userOptional = args.getUser("user");
+                            Long userId = null;
                             if (userOptional.isEmpty()) {
-                                return;
+                                userId = event.getUserId();
+                            } else {
+                                userId = userOptional.get().getUserId();
                             }
-                            User user = userOptional.get();
-                            Long userId = user.getUserId();
-                            String name = args.getString("name");
                             BufferedImage image = CompletionTableGenerator.generateWithPlates(userId, name);
                             try {
                                 byte[] data = Maimai.image2Bytes(image, "png");
@@ -50,7 +39,6 @@ public class CommandCompletionTable implements CommandEntrypoint {
                                 log.error("Error: ", e);
                             }
                         })
-                        .withArguments("#{user} #{name}")
                         .up()
         );
     }
