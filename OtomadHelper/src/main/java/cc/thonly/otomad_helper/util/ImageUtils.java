@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
 
 @Slf4j
@@ -14,7 +15,7 @@ public class ImageUtils {
 
     public static byte[] generateAvatar(String framePath, String imageUrl) throws IOException {
         try {
-            BufferedImage userAvatar = ImageIO.read(new URL(imageUrl));
+            BufferedImage userAvatar = ImageIO.read(URI.create(imageUrl).toURL());
             BufferedImage frame = ImageIO.read(new File(framePath));
             int width = frame.getWidth();
             int height = frame.getHeight();
@@ -43,7 +44,8 @@ public class ImageUtils {
 
     public static byte[] generateAvatar(Class<?> clazz, String framePath, String imageUrl) throws IOException {
         try {
-            BufferedImage userAvatar = ImageIO.read(new URL(imageUrl));
+
+            BufferedImage userAvatar = ImageIO.read(URI.create(imageUrl).toURL());
 
             try (InputStream frameStream = clazz.getResourceAsStream(framePath)) {
                 if (frameStream == null) {

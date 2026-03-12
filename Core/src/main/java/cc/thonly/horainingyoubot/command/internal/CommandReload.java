@@ -1,7 +1,7 @@
 package cc.thonly.horainingyoubot.command.internal;
 
 import cc.thonly.horainingyoubot.command.*;
-import cc.thonly.horainingyoubot.core.StartupRunner;
+import cc.thonly.horainingyoubot.StartupRunner;
 import cc.thonly.horainingyoubot.data.PermissionLevel;
 import cc.thonly.horainingyoubot.util.MsgTool;
 import org.springframework.beans.factory.annotation.Autowired;

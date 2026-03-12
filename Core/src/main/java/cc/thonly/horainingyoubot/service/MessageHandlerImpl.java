@@ -2,7 +2,7 @@ package cc.thonly.horainingyoubot.service;
 
 import cc.thonly.horainingyoubot.command.*;
 import cc.thonly.horainingyoubot.command.internal.CommandEula;
-import cc.thonly.horainingyoubot.core.CoreEvent;
+import cc.thonly.horainingyoubot.core.EveryEvents;
 import cc.thonly.horainingyoubot.data.CommandResult;
 import cc.thonly.horainingyoubot.data.db.Group;
 import cc.thonly.horainingyoubot.data.db.User;
@@ -28,7 +28,7 @@ public class MessageHandlerImpl {
     UserManagerImpl userManager;
 
     @Autowired
-    CoreEvent coreEvent;
+    EveryEvents everyEvents;
 
     public CommandResult accept(Bot bot, @Nullable User user, @Nullable Group group, AnyMessageEvent event) {
         CommandSession commandSession = this.commands.parseForCommand(bot, event);

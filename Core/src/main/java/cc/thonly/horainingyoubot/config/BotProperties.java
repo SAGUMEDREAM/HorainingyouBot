@@ -11,4 +11,5 @@ public class BotProperties {
 
     private Long selfId = -1L;
     private Long ownerId = -1L;
+    private Long botGroupId = -1L;
 }

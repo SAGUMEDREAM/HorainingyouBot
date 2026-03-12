@@ -20,15 +20,42 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
+@SuppressWarnings("DuplicatedCode")
 public class BotActionExtend {
     public static final ActionPath DOWNLOAD = createKey("download_file");
     public static final ActionPath GET_PRIVATE_FILE_URL = createKey("get_private_file_url");
     public static final ActionPath GET_GROUP_FILE_URL = createKey("get_group_file_url");
+    public static final ActionPath ACCEPT_GROUP_INVITATION = createKey("accept_group_invitation");
+    public static final ActionPath REJECT_GROUP_INVITATION = createKey("reject_group_invitation");
     private static final Gson gson = new Gson();
     private static final OkHttpClient httpClient = new OkHttpClient();
 
     public static ActionPath createKey(String path) {
         return () -> path;
+    }
+
+    public static JsonElement acceptGroupInvitation(Bot bot, Long groupId, Long invitationSeq) {
+        WebSocketSession session = bot.getSession();
+        ActionHandler actionHandler = bot.getActionHandler();
+        Map<String, Object> params = new HashMap<>();
+        params.put(ActionParams.GROUP_ID, groupId);
+        params.put(ActionParamsExtend.INVITATION_SEQ, invitationSeq);
+        JsonObjectWrapper result;
+        result = actionHandler.action(session, ACCEPT_GROUP_INVITATION, params);
+        String jsonString = result.toJSONString();
+        return JsonParser.parseString(jsonString);
+    }
+
+    public static JsonElement rejectGroupInvitation(Bot bot, Long groupId, Long invitationSeq) {
+        WebSocketSession session = bot.getSession();
+        ActionHandler actionHandler = bot.getActionHandler();
+        Map<String, Object> params = new HashMap<>();
+        params.put(ActionParams.GROUP_ID, groupId);
+        params.put(ActionParamsExtend.INVITATION_SEQ, invitationSeq);
+        JsonObjectWrapper result;
+        result = actionHandler.action(session, REJECT_GROUP_INVITATION, params);
+        String jsonString = result.toJSONString();
+        return JsonParser.parseString(jsonString);
     }
 
     public static byte[] download(Bot bot, AnyMessageEvent event, String fileId) {

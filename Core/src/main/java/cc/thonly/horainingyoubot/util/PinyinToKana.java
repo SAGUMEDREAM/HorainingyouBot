@@ -14,13 +14,12 @@ public class PinyinToKana {
     public static String parse(String inputText) {
         StringBuilder sb = new StringBuilder();
 
-        inputText = replaceNumbers(inputText);
-
         List<String> pinyinList = PinyinUtil.toPinyinList(inputText);
 
         for (String pinyin : pinyinList) {
             String kana = mapping.get(pinyin);
             if (kana == null) {
+                sb.append(pinyin);
                 continue;
             }
             sb.append(kana);

@@ -1,7 +1,7 @@
 package cc.thonly.touhou_bot;
 
 import cc.thonly.horainingyoubot.command.Commands;
-import cc.thonly.horainingyoubot.core.CoreEvent;
+import cc.thonly.horainingyoubot.core.EveryEvents;
 import cc.thonly.horainingyoubot.core.JPlugin;
 import cc.thonly.horainingyoubot.event.internal.EventResult;
 import cc.thonly.horainingyoubot.util.MsgTool;
@@ -25,27 +25,32 @@ public class TouhouBot implements JPlugin {
     @Override
     public void onInitialize() {
         this.registerCommands(this.commands);
-        CoreEvent.RECEIVE_ANY.register(event -> {
-            Bot bot = event.getBot();
-            AnyMessageEvent anyMessageEvent = event.getEvent();
-            List<ArrayMsg> arrayMsg = anyMessageEvent.getArrayMsg();
-            if (Objects.equals(anyMessageEvent.getUserId(), anyMessageEvent.getSelfId())) {
+        this.registerEvents();
+    }
+
+    @Override
+    public void registerEvents() {
+        EveryEvents.RECEIVE_ANY.register(listener -> {
+            Bot bot = listener.getBot();
+            AnyMessageEvent event = listener.getEvent();
+            List<ArrayMsg> arrayMsg = event.getArrayMsg();
+            if (Objects.equals(event.getUserId(), event.getSelfId())) {
                 return EventResult.PASS;
             }
             if (MsgTool.startsWith(arrayMsg, "1+1")) {
-                MsgTool.reply(bot, anyMessageEvent, "=⑨!");
+                MsgTool.reply(bot, event, "=⑨!");
             }
             return EventResult.PASS;
         });
-        CoreEvent.RECEIVE_ANY.register(event -> {
-            Bot bot = event.getBot();
-            AnyMessageEvent anyMessageEvent = event.getEvent();
-            if (Objects.equals(anyMessageEvent.getUserId(), anyMessageEvent.getSelfId())) {
+        EveryEvents.RECEIVE_ANY.register(listener -> {
+            Bot bot = listener.getBot();
+            AnyMessageEvent event = listener.getEvent();
+            if (Objects.equals(event.getUserId(), event.getSelfId())) {
                 return EventResult.PASS;
             }
-            List<ArrayMsg> arrayMsg = anyMessageEvent.getArrayMsg();
+            List<ArrayMsg> arrayMsg = event.getArrayMsg();
             if (MsgTool.startsWith(arrayMsg, "baka")) {
-                bot.sendMsg(anyMessageEvent, "BAKA!", false);
+                bot.sendMsg(event, "BAKA!", false);
                 return EventResult.PASS;
             }
             if (MsgTool.startsWith(arrayMsg, "BAKA!")) {
@@ -63,12 +68,12 @@ public class TouhouBot implements JPlugin {
                     );
                     Random random = new Random();
                     String reply = cuteReplies.get(random.nextInt(cuteReplies.size()));
-                    bot.sendMsg(anyMessageEvent, reply, false);
+                    bot.sendMsg(event, reply, false);
                     return EventResult.PASS;
                 }
 
                 String reply = "BAKA!" + "!".repeat((int) Math.max(0, exclamations - 1));
-                bot.sendMsg(anyMessageEvent, reply, false);
+                bot.sendMsg(event, reply, false);
                 return EventResult.PASS;
             }
             return EventResult.PASS;

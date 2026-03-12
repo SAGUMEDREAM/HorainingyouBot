@@ -23,6 +23,7 @@ public class BotConfigInitializer {
                 bot:
                   self_id: 2769345831
                   owner_id: 807131829
+                  bot_group_id: 863842932
                 """;
 
         Files.writeString(BOT_CONFIG, defaultConfig);

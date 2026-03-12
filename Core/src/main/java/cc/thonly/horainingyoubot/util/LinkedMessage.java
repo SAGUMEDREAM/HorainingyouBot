@@ -84,7 +84,7 @@ public class LinkedMessage {
         return group + ":" + e.getUserId();
     }
 
-    public static FileInfo getNextFile(String fileType, Bot bot, AnyMessageEvent event, LinkedMessage.Context ctx) {
+    public static FileInfo getNextFile(String fileType, String fileName, Bot bot, AnyMessageEvent event, LinkedMessage.Context ctx) {
         MsgTool.reply(bot, event, "请发送%s文件".formatted(fileType));
         AnyMessageEvent next = ctx.waitNext(45);
         List<ArrayMsg> arrayMsg = next.getArrayMsg();
@@ -95,7 +95,7 @@ public class LinkedMessage {
 
         JsonNode data = first.getData();
         String fileId = data.get("file_id").asString();
-        String originalName = data.has("file_name") ? data.get("file_name").asString() : "a_file";
+        String originalName = data.has("file_name") ? data.get("file_name").asString() : fileName;
         byte[] audioBytes = BotActionExtend.download(bot, event, fileId);
         return new FileInfo(originalName, audioBytes);
     }

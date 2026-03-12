@@ -7,80 +7,11 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
-import numpy as np
-import soundfile as sf
-import pyworld as pw
 
 try:
     import mido
 except ImportError:
     mido = None
-
-
-def normalize_pitch(input_video: str, temp_dir: str, target_freq: float = 220.0):
-    """
-    把素材音高统一到 target_freq
-    返回新的标准化视频路径
-    """
-
-    wav_path = os.path.join(temp_dir, "norm_src.wav")
-    result_wav = os.path.join(temp_dir, "norm_src_result.wav")
-    result_video = os.path.join(temp_dir, "norm_src_video.mp4")
-
-    # 1 提取音频
-    run_cmd([
-        "ffmpeg",
-        "-y",
-        "-i",
-        input_video,
-        "-vn",
-        "-ac",
-        "1",
-        "-ar",
-        "48000",
-        wav_path
-    ])
-
-    # 2 读取音频
-    x, fs = sf.read(wav_path)
-
-    if isinstance(x[0], np.ndarray):
-        x = np.array([i[0] for i in x])
-
-    # 3 pyworld 统一音高
-    _f0, t = pw.harvest(x, fs)
-    f0 = pw.stonemask(x, _f0, t, fs)
-
-    for i in range(len(f0)):
-        f0[i] = target_freq
-
-    sp = pw.cheaptrick(x, f0, t, fs)
-    ap = pw.d4c(x, f0, t, fs)
-
-    y = pw.synthesize(f0, sp, ap, fs, pw.default_frame_period)
-
-    sf.write(result_wav, y, fs)
-
-    # 4 把音频放回视频
-    run_cmd([
-        "ffmpeg",
-        "-y",
-        "-i",
-        input_video,
-        "-i",
-        result_wav,
-        "-map",
-        "0:v",
-        "-map",
-        "1:a",
-        "-c:v",
-        "copy",
-        "-c:a",
-        "aac",
-        result_video
-    ])
-
-    return result_video
 
 
 @dataclass
@@ -222,15 +153,15 @@ def assign_lanes(notes: List[NoteEvent]) -> int:
 
 
 def build_segments(
-        notes: List[NoteEvent],
-        src_video: str,
-        out_video: str,
-        temp_dir: str,
-        mix_chunk: int,
-        resume: bool,
-        resume_from: int,
-        crf: float,
-        preset: str,
+    notes: List[NoteEvent],
+    src_video: str,
+    out_video: str,
+    temp_dir: str,
+    mix_chunk: int,
+    resume: bool,
+    resume_from: int,
+    crf: float,
+    preset: str,
 ) -> None:
     notes = [note for note in notes if (note.end - note.start) > 1e-6]
     if not notes:
@@ -331,21 +262,18 @@ def build_segments(
             seg_has_v = has_stream(seg_path, "v")
             seg_has_a = has_stream(seg_path, "a")
             if seg_size > 0 and (seg_has_v or seg_has_a):
-                pass
-                # print(f"[恢复] 复用片段：{seg_path}")
+                print(f"[恢复] 复用片段：{seg_path}")
             else:
                 try:
                     os.remove(seg_path)
                 except OSError:
                     pass
                 run_cmd(cmd)
-                # print(f"[恢复] 重新生成片段：{seg_path}")
+                print(f"[恢复] 重新生成片段：{seg_path}")
         else:
             run_cmd(cmd)
             if resume:
-                # print(f"[恢复] 重新生成片段：{seg_path}")
-                pass
-
+                print(f"[恢复] 重新生成片段：{seg_path}")
 
         segments.append(seg_path)
         seg_infos.append(
@@ -359,8 +287,7 @@ def build_segments(
 
     base_path = os.path.join(temp_dir, "base.mp4")
     if resume and os.path.isfile(base_path):
-        pass
-        # print(f"[恢复] 复用底图：{base_path}")
+        print(f"[恢复] 复用底图：{base_path}")
     else:
         cmd = [
             "ffmpeg",
@@ -395,8 +322,7 @@ def build_segments(
         ]
         run_cmd(cmd)
         if resume:
-            pass
-            # print(f"[恢复] 重新生成底图：{base_path}")
+            print(f"[恢复] 重新生成底图：{base_path}")
 
     current_path = base_path
     chunk_size = max(1, int(mix_chunk))
@@ -408,7 +334,7 @@ def build_segments(
             if os.path.isfile(existing):
                 current_path = existing
                 chunk_index = idx + 1
-                # print(f"[恢复] 复用分块：{existing}")
+                print(f"[恢复] 复用分块：{existing}")
             else:
                 break
         if resume_from > 0:
@@ -419,15 +345,15 @@ def build_segments(
             if desired_chunk == 0:
                 current_path = base_path
                 chunk_index = 0
-                # print("[恢复] 从底图开始（没有已完成分块）")
+                print("[恢复] 从底图开始（没有已完成分块）")
             elif os.path.isfile(desired_mix):
                 current_path = desired_mix
                 chunk_index = desired_chunk
-                # print(f"[恢复] 从分块开始：{desired_mix}")
+                print(f"[恢复] 从分块开始：{desired_mix}")
             else:
                 die(f"缺少恢复分块：{desired_mix}")
     for start in starts[chunk_index:]:
-        chunk = seg_infos[start: start + chunk_size]
+        chunk = seg_infos[start : start + chunk_size]
         mix_path = os.path.join(temp_dir, f"mix_c{chunk_index:03d}.mp4")
         chunk_index += 1
 
@@ -507,8 +433,7 @@ def build_segments(
         )
         run_cmd(cmd)
         if resume:
-            pass
-            # print(f"[恢复] 已生成分块：{mix_path}")
+            print(f"[恢复] 已生成分块：{mix_path}")
         if current_path != base_path:
             try:
                 os.remove(current_path)
@@ -531,7 +456,7 @@ def main() -> None:
     parser.add_argument("--out", default="vid.mp4", help="输出视频")
     parser.add_argument(
         "--temp-dir",
-        default="tmp_segments",
+        default="otm-temp",
         help="临时文件相对路径",
     )
     parser.add_argument(
@@ -575,14 +500,10 @@ def main() -> None:
     if not os.path.isfile(args.src):
         die(f"找不到源视频：{args.src}")
 
-    # print("正在统一素材音高...")
-
-    normalized_src = normalize_pitch(args.src, args.temp_dir)
-
     notes = extract_notes(args.midi)
     build_segments(
         notes,
-        normalized_src,
+        args.src,
         args.out,
         args.temp_dir,
         args.mix_chunk,
@@ -591,7 +512,7 @@ def main() -> None:
         args.crf,
         args.preset,
     )
-    # print(f"完成。输出：{args.out}")
+    print(f"完成。输出：{args.out}")
 
 
 if __name__ == "__main__":

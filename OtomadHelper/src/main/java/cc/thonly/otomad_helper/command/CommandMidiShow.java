@@ -18,6 +18,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,8 +51,9 @@ public class CommandMidiShow implements CommandEntrypoint {
         );
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private void searchMidiAndSend(Bot bot, AnyMessageEvent event, String keyword) throws IOException {
-        String url = "https://www.midishow.com/search/result?q=" + java.net.URLEncoder.encode(keyword, "UTF-8");
+        String url = "https://www.midishow.com/search/result?q=" + URLEncoder.encode(keyword, StandardCharsets.UTF_8);
         Request request = new Request.Builder()
                 .url(url)
                 .header("Referer", "https://www.midishow.com/")
@@ -66,7 +69,7 @@ public class CommandMidiShow implements CommandEntrypoint {
             Document doc = Jsoup.parse(response.body().string());
             Elements results = doc.select("#search-result > div");
 
-            if (results.isEmpty() || results.get(0).attr("data-key").isEmpty()) {
+            if (results.isEmpty() || results.getFirst().attr("data-key").isEmpty()) {
                 MsgTool.reply(bot, event, "没有找到相关MIDI……");
                 return;
             }

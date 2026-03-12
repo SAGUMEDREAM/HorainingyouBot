@@ -43,7 +43,10 @@ public class CommandPlugins implements CommandEntrypoint {
 
                                 md.append("### ").append(++i).append(". ").append(name).append("\n");
                                 md.append("- Class: `").append(className).append("`\n");
-                                md.append("- Description: `").append(plugin.getPluginDescription()).append("`\n");
+                                if (plugin.hasMeta()) {
+                                    JPlugin.Meta meta = plugin.getMeta();
+                                    md.append("- Description: `").append(meta.getDescription()).append("`\n");
+                                }
 //                                md.append("- Jar: `").append(jarPath).append("`\n\n");
                             }
 

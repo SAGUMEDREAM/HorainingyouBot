@@ -194,6 +194,10 @@ public class MsgTool {
         return ArrayMsgUtils.builder().text(text).build().getFirst();
     }
 
+    public static List<ArrayMsg> simpText(String text) {
+        return ArrayMsgUtils.builder().text(text).build();
+    }
+
     public static ArrayMsg img(String url) {
         return ArrayMsgUtils.builder().img(url).build().getFirst();
     }
@@ -222,6 +226,24 @@ public class MsgTool {
 
     public static ArrayMsg at(User user) {
         return ArrayMsgUtils.builder().at(user.getUserId()).build().getFirst();
+    }
+
+    public static int len(List<ArrayMsg> arrayMsgs) {
+        StringBuilder sb = new StringBuilder();
+        for (ArrayMsg item : arrayMsgs) {
+            if (item.getType()==MsgTypeEnum.text) {
+                JsonNode text = item.getData().get("text");
+                if (text == null) {
+                    continue;
+                }
+                if (text.isString()) {
+                    sb.append(text.asString());
+                }
+            } else {
+                sb.append("@");
+            }
+        }
+        return sb.length();
     }
 
     public static List<ArrayMsg> replaceAll(String source, String charset, ArrayMsg target) {
@@ -269,8 +291,8 @@ public class MsgTool {
         if (list.isEmpty()) {
             return false;
         }
-        String first = list.getFirst();
-        return first.endsWith(str);
+        String last = list.getLast();
+        return last.endsWith(str);
     }
 
     public static String _getText(ArrayMsg arrayMsg) {
@@ -342,6 +364,21 @@ public class MsgTool {
                 list,
                 false
         );
+    }
+
+    public static String filterText(List<ArrayMsg> list) {
+        StringBuilder sb = new StringBuilder();
+        list.stream().filter(item -> item.getType() == MsgTypeEnum.text)
+                .forEach(item -> {
+                    JsonNode text = item.getData().get("text");
+                    if (text == null) {
+                        return;
+                    }
+                    if (text.isString()) {
+                        sb.append(text.asString());
+                    }
+                });
+        return sb.toString();
     }
 
     public static String toStrCQ(ArrayMsg arrayMsg) {

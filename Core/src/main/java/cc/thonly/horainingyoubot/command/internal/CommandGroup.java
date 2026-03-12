@@ -39,7 +39,6 @@ public class CommandGroup implements CommandEntrypoint {
                             });
                         })
                         .withArguments("#{group_id}")
-
                         .withPermissionLevel(PermissionLevel.MODERATOR)
                         .up()
                         .addNode("accept", (bot, event, args) -> {
@@ -51,8 +50,7 @@ public class CommandGroup implements CommandEntrypoint {
                             if (sub_type == null) {
                                 return;
                             }
-                            String reason = args.getString("reason");
-                            bot.setGroupAddRequest(flag, sub_type, false, reason);
+                            bot.setGroupAddRequest(flag, sub_type, false, "");
                         })
                         .withArguments("#{flag} #{sub_type}")
                         .withDefaultArgument("reason", "")
@@ -67,7 +65,7 @@ public class CommandGroup implements CommandEntrypoint {
                             if (sub_type == null) {
                                 return;
                             }
-                            String reason = args.getString("reason");
+                            String reason = args.getString("reason", "");
                             bot.setGroupAddRequest(flag, sub_type, false, reason);
                         })
                         .withArguments("#{flag} #{sub_type} #{reason}")

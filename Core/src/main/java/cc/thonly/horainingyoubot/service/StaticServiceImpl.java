@@ -1,6 +1,6 @@
 package cc.thonly.horainingyoubot.service;
 
-import cc.thonly.horainingyoubot.core.CorePlugin;
+import cc.thonly.horainingyoubot.CorePlugin;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import lombok.extern.slf4j.Slf4j;

@@ -24,7 +24,7 @@ spring:
 
 shiro:
   plugin-list:
-    - cc.thonly.horainingyoubot.core.CorePlugin
+    - cc.thonly.horainingyoubot.CorePlugin
   ws:
     timeout: 10
     access-token: "88888888"

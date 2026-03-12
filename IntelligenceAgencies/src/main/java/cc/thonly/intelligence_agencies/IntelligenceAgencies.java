@@ -4,7 +4,8 @@ import cc.thonly.horainingyoubot.browser.MarkdownImage;
 import cc.thonly.horainingyoubot.browser.MarkdownImageFactory;
 import cc.thonly.horainingyoubot.command.CommandNode;
 import cc.thonly.horainingyoubot.command.Commands;
-import cc.thonly.horainingyoubot.core.CoreEvent;
+import cc.thonly.horainingyoubot.config.BotProperties;
+import cc.thonly.horainingyoubot.core.EveryEvents;
 import cc.thonly.horainingyoubot.core.JPlugin;
 import cc.thonly.horainingyoubot.data.db.User;
 import cc.thonly.horainingyoubot.event.internal.EventResult;
@@ -44,6 +45,9 @@ public class IntelligenceAgencies implements JPlugin {
     @Autowired
     CollectCacheRepository collectCacheRepository;
 
+    @Autowired
+    BotProperties botProperties;
+
     final Path keywordPath = Path.of("./data/collect_keyword.txt");
     final Path targetGroup = Path.of("./data/forward_target_group.txt");
     final Path blacklistGroup = Path.of("./data/forward_blacklist_group.txt");
@@ -55,11 +59,16 @@ public class IntelligenceAgencies implements JPlugin {
     public void onInitialize() {
         this.reloadConfig();
         this.registerCommands(this.commands);
-        CoreEvent.RECEIVE_ANY.register(event -> {
+        this.registerEvents();
+    }
+
+    @Override
+    public void registerEvents() {
+        EveryEvents.RECEIVE_ANY.register(event -> {
             this.handleMessage(event.getBot(), event.getEvent());
             return EventResult.PASS;
         });
-        CoreEvent.RECEIVE_ANY_REPLY.register(event -> {
+        EveryEvents.RECEIVE_ANY_REPLY.register(event -> {
             Bot bot = event.getBot();
             AnyMessageEvent anyMessageEvent = event.getEvent();
             User user = this.userManager.getOrCreate(anyMessageEvent);
@@ -153,18 +162,15 @@ public class IntelligenceAgencies implements JPlugin {
         commands.registerCommand(
                 CommandNode.createRoot("宣发投稿")
                         .withExecutor((bot, event, args) -> {
-                            LinkedMessage.start(bot, event, new LinkedMessage.SessionHandler() {
-                                @Override
-                                public void handle(LinkedMessage.Context ctx) throws Exception {
-                                    MsgTool.reply(bot, event, "请输入需要宣发的内容");
-                                    AnyMessageEvent anyMessageEvent = ctx.waitNext();
-                                    if (anyMessageEvent == null) {
-                                        ctx.cancel();
-                                        return;
-                                    }
-                                    bot.sendGroupMsg(863842932, "收到来自%s的宣发".formatted(event.getUserId()), false);
-                                    bot.sendGroupMsg(863842932, anyMessageEvent.getArrayMsg(), false);
+                            LinkedMessage.start(bot, event, ctx -> {
+                                MsgTool.reply(bot, event, "请输入需要宣发的内容");
+                                AnyMessageEvent anyMessageEvent = ctx.waitNext();
+                                if (anyMessageEvent == null) {
+                                    ctx.cancel();
+                                    return;
                                 }
+                                bot.sendGroupMsg(this.botProperties.getBotGroupId(), "收到来自%s的宣发".formatted(event.getUserId()), false);
+                                bot.sendGroupMsg(this.botProperties.getBotGroupId(), anyMessageEvent.getArrayMsg(), false);
                             });
                         })
         );
@@ -201,11 +207,12 @@ public class IntelligenceAgencies implements JPlugin {
             return;
         }
         List<ArrayMsg> arrayMsg = event.getArrayMsg();
-        if (len(arrayMsg) <= 35) {
+        if (MsgTool.len(arrayMsg) <= 35) {
             return;
         }
         String listCQ = MsgTool.toListCQ(arrayMsg);
-        if (!(shouldCollect(listCQ) && !hasCache(listCQ))) {
+        String listMsg = MsgTool.filterText(arrayMsg);
+        if (!(shouldCollect(listMsg) && !hasCache(listMsg))) {
             return;
         }
         long totalCount = this.collectCacheRepository.count();
@@ -217,28 +224,12 @@ public class IntelligenceAgencies implements JPlugin {
             }
         }
         CollectCache collectCache = new CollectCache();
-        collectCache.setCqcode(listCQ);
+        collectCache.setCqcode(listMsg);
         collectCache.setTime(LocalDateTime.now());
         for (Long groupId : this.collectGroupIds) {
             bot.sendGroupMsg(groupId, listCQ, false);
         }
         this.collectCacheRepository.save(collectCache);
-    }
-
-    public int len(List<ArrayMsg> arrayMsgs) {
-        StringBuilder sb = new StringBuilder();
-        arrayMsgs.stream()
-                .filter(item -> item.getType() == MsgTypeEnum.text)
-                .forEach(item -> {
-                    JsonNode text = item.getData().get("text");
-                    if (text == null) {
-                        return;
-                    }
-                    if (text.isString()) {
-                        sb.append(text.asString());
-                    }
-                });
-        return sb.length();
     }
 
     public boolean hasCache(String cqcode) {

@@ -42,6 +42,10 @@ public class Maimai implements JPlugin {
     CommandCompletionTable commandCompletionTable;
     @Autowired
     CommandMaiAlias commandMaiAlias;
+    @Autowired
+    CommandMaiFriend commandMaiFriend;
+    @Autowired
+    CommandMaiAwake commandMaiAwake;
 
     @Override
     public void registerCommands(Commands commands) {
@@ -50,6 +54,8 @@ public class Maimai implements JPlugin {
         commands.registerCommand(this.commandSongPlayData);
         commands.registerCommand(this.commandCompletionTable);
         commands.registerCommand(this.commandMaiAlias);
+        commands.registerCommand(this.commandMaiFriend);
+        commands.registerCommand(this.commandMaiAwake);
     }
 
     public static byte[] image2Bytes(BufferedImage image, String format) throws Exception {

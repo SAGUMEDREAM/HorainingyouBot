@@ -10,7 +10,7 @@ import java.io.*;
 import java.nio.file.Files;
 
 @Slf4j
-@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+@SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection", "ResultOfMethodCallIgnored"})
 public class OtomadHelper implements JPlugin {
     private static final String[] DEPENDENCIES = {
             "numpy",
@@ -29,7 +29,7 @@ public class OtomadHelper implements JPlugin {
     @Override
     public void onInitialize() {
         this.hasPython = this.checkPython();
-        this.checkPythonDep();
+        Thread.startVirtualThread(this::checkPythonDep);
         this.ifNotExistRelease("./static/script/BpmDetector.py", "./script/BpmDetector.py");
         this.ifNotExistRelease("./static/script/PitchCorrection4Mirai.py", "./script/PitchCorrection4Mirai.py");
         this.ifNotExistRelease("./static/script/mel.py", "./script/mel.py");
@@ -57,10 +57,6 @@ public class OtomadHelper implements JPlugin {
     @Autowired
     CommandIMSoHappy commandIMSoHappy;
     @Autowired
-    CommandMaiFriend commandMaiFriend;
-    @Autowired
-    CommandMaiAwake commandMaiAwake;
-    @Autowired
     CommandCreateOtomad commandCreateOtomad;
 
     @Override
@@ -73,8 +69,6 @@ public class OtomadHelper implements JPlugin {
         commands.registerCommand(this.commandSpherization);
         commands.registerCommand(this.commandDespherization);
         commands.registerCommand(this.commandIMSoHappy);
-        commands.registerCommand(this.commandMaiFriend);
-        commands.registerCommand(this.commandMaiAwake);
         if (this.hasPython) {
             commands.registerCommand(this.commandNewtone);
             commands.registerCommand(this.commandBpmDetector);
@@ -114,6 +108,7 @@ public class OtomadHelper implements JPlugin {
         return false;
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     void checkPythonDep() {
         String pythonCmd = "python";
         if (!this.checkPython()) {
@@ -164,6 +159,7 @@ public class OtomadHelper implements JPlugin {
         if (bytes[0] == 'O' && bytes[1] == 'g' && bytes[2] == 'g' && bytes[3] == 'S') return true;
 
         // FLAC 文件头 "fLaC"
+        //noinspection RedundantIfStatement
         if (bytes[0] == 'f' && bytes[1] == 'L' && bytes[2] == 'a' && bytes[3] == 'C') return true;
 
         return false;

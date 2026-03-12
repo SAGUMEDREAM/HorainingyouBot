@@ -1,8 +1,6 @@
 package cc.thonly.horainingyoubot;
 
-import cc.thonly.horainingyoubot.core.CorePlugin;
 import cc.thonly.horainingyoubot.core.SpringContextHolder;
-import cc.thonly.horainingyoubot.util.DeferTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,13 +15,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public class HorainingyouBotApplication {
 
     public static void main(String[] args) {
-        earlySetup();
-        ConfigurableApplicationContext run = SpringApplication.run(HorainingyouBotApplication.class, args);
-        SpringContextHolder.setContext(run);
+        SpringApplication app = new SpringApplication(HorainingyouBotApplication.class);
+        ConfigurableApplicationContext context = app.run(args);
+        SpringContextHolder.setContext(context);
         CorePlugin.onLoad();
-    }
-
-    public static void earlySetup() {
-
     }
 }

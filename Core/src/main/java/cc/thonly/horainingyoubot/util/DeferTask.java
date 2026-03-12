@@ -1,6 +1,6 @@
 package cc.thonly.horainingyoubot.util;
 
-import cc.thonly.horainingyoubot.core.CorePlugin;
+import cc.thonly.horainingyoubot.CorePlugin;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

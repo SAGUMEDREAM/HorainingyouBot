@@ -30,6 +30,7 @@ public class CommandBilibili implements CommandEntrypoint {
         commands.registerCommand(
                 CommandNode.createRoot("b站解析")
                         .withAliasName("B站解析")
+                        .withAliasName("bili")
                         .withArguments("#{bvid|avid}")
                         .withExecutor((bot, event, args) -> {
                             String videoId = args.getString("bvid|avid"); // 直接拿这个整体参数

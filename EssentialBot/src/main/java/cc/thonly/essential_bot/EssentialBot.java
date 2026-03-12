@@ -3,8 +3,8 @@ package cc.thonly.essential_bot;
 import cc.thonly.essential_bot.command.*;
 import cc.thonly.horainingyoubot.command.Commands;
 import cc.thonly.essential_bot.command.CommandInfo;
-import cc.thonly.horainingyoubot.command.internal.CommandCopyGroupMembers;
-import cc.thonly.horainingyoubot.core.CoreEvent;
+import cc.thonly.horainingyoubot.config.BotProperties;
+import cc.thonly.horainingyoubot.core.EveryEvents;
 import cc.thonly.horainingyoubot.core.JPlugin;
 import cc.thonly.horainingyoubot.data.db.User;
 import cc.thonly.horainingyoubot.event.internal.EventResult;
@@ -38,17 +38,49 @@ public class EssentialBot implements JPlugin {
     @Autowired
     UserManagerImpl userManager;
 
+    @Autowired
+    BotProperties properties;
+
     @Override
     public void onInitialize() {
         this.registerCommands();
-        CoreEvent.FRIEND_ADD_REQUEST.register(event -> {
+        this.registerEvents();
+    }
+
+    @Override
+    public void registerEvents() {
+        EveryEvents.FRIEND_ADD_REQUEST.register(listener -> {
 
             return EventResult.PASS;
         });
-        CoreEvent.GROUP_ADD_REQUEST.register(event -> {
-            Bot bot = event.getBot();
-            GroupAddRequestEvent requestEvent = event.getEvent();
-            String comment = requestEvent.getComment();
+        EveryEvents.GROUP_INVITE_REQUEST.register(listener -> {
+            Bot bot = listener.getBot();
+            GroupAddRequestEvent event = listener.getEvent();
+            Long userId = event.getUserId();
+            Long groupId = event.getGroupId();
+            String flag = event.getFlag();
+            User user = this.userManager.getOrCreate(bot, userId);
+            Long botGroupId = this.properties.getBotGroupId();
+            if (botGroupId == -1L) return EventResult.PASS;
+            String result = ("用户@%s(%s)试图邀请Bot加入至QQ群%s\n会话ID：%s\n类型：%s\n同意：/group accept %s %s\n拒绝：/group reject %s %s")
+                    .formatted(user.getUsername(), userId, groupId,
+                            flag,
+                            event.getSubType(),
+                            flag,
+                            event.getSubType(),
+                            flag,
+                            event.getSubType()
+                    );
+            bot.sendGroupMsg(botGroupId, result, false);
+            return EventResult.PASS;
+        });
+        EveryEvents.GROUP_ADD_REQUEST.register(listener -> {
+            Bot bot = listener.getBot();
+            GroupAddRequestEvent event = listener.getEvent();
+            String comment = event.getComment();
+            if (comment == null) {
+                return EventResult.PASS;
+            }
             if (comment.contains("学习谢谢")
                     || comment.contains("请同意")
                     || comment.contains("进群交流")
@@ -56,40 +88,40 @@ public class EssentialBot implements JPlugin {
                     || comment.contains("通过一下")
                     || comment.contains("通过下")
             ) {
-                bot.setGroupAddRequest(requestEvent.getFlag(), requestEvent.getSubType(), false, "自动处理");
+                bot.setGroupAddRequest(event.getFlag(), event.getSubType(), false, "自动处理");
                 return EventResult.PASS;
             }
             return EventResult.PASS;
         });
-        CoreEvent.AT_BOT.register(event -> {
-            Bot bot = event.getBot();
-            AnyMessageEvent anyMessageEvent = event.getEvent();
-            List<ArrayMsg> arrayMsgs = anyMessageEvent.getArrayMsg();
+        EveryEvents.AT_BOT.register(listener -> {
+            Bot bot = listener.getBot();
+            AnyMessageEvent event = listener.getEvent();
+            List<ArrayMsg> arrayMsgs = event.getArrayMsg();
             String cqcode = MsgTool.toListCQ(arrayMsgs);
             if (cqcode.contains("在吗") || cqcode.contains("在吗?") || cqcode.contains("在?")) {
-                MsgTool.reply(bot, anyMessageEvent, "Bot在");
+                MsgTool.reply(bot, event, "Bot在");
                 return EventResult.PASS;
             } else {
                 return EventResult.PASS;
             }
         });
         AtomicBoolean pokeLock = new AtomicBoolean(false);
-        CoreEvent.POKE.register(event -> {
-            Bot bot = event.getBot();
-            PokeNoticeEvent pokeNoticeEvent = event.getEvent();
-            if (Objects.equals(pokeNoticeEvent.getUserId(), bot.getSelfId())) {
+        EveryEvents.POKE.register(listener -> {
+            Bot bot = listener.getBot();
+            PokeNoticeEvent event = listener.getEvent();
+            if (Objects.equals(event.getUserId(), bot.getSelfId())) {
                 return EventResult.PASS;
             }
-            if (!Objects.equals(pokeNoticeEvent.getTargetId(), bot.getSelfId())) {
+            if (!Objects.equals(event.getTargetId(), bot.getSelfId())) {
                 return EventResult.PASS;
             }
             if (pokeLock.get()) {
                 return EventResult.PASS;
             }
-            if (pokeNoticeEvent.getGroupId() == null) {
-                bot.sendPrivateMsg(pokeNoticeEvent.getUserId(), "喂!(#`O′) 戳我干什么!!", false);
+            if (event.getGroupId() == null) {
+                bot.sendPrivateMsg(event.getUserId(), "喂!(#`O′) 戳我干什么!!", false);
             } else {
-                bot.sendGroupMsg(pokeNoticeEvent.getGroupId(), "喂!(#`O′) 戳我干什么!!", false);
+                bot.sendGroupMsg(event.getGroupId(), "喂!(#`O′) 戳我干什么!!", false);
             }
             pokeLock.set(true);
             this.scheduler.schedule(() -> {
@@ -97,10 +129,10 @@ public class EssentialBot implements JPlugin {
             }, 30, TimeUnit.SECONDS);
             return EventResult.PASS;
         });
-        CoreEvent.RECEIVE_ANY_REPLY.register(event -> {
-            Bot bot = event.getBot();
-            AnyMessageEvent anyMessageEvent = event.getEvent();
-            List<ArrayMsg> arrayMsg = anyMessageEvent.getArrayMsg();
+        EveryEvents.RECEIVE_ANY_REPLY.register(listener -> {
+            Bot bot = listener.getBot();
+            AnyMessageEvent event = listener.getEvent();
+            List<ArrayMsg> arrayMsg = event.getArrayMsg();
             ArrayMsg first = arrayMsg.getFirst();
             JsonNode data = first.getData();
             if (!Objects.equals(first.getType(), MsgTypeEnum.reply)) {
@@ -114,23 +146,23 @@ public class EssentialBot implements JPlugin {
             if (!Objects.equals(userId, bot.getSelfId())) {
                 return EventResult.PASS;
             }
-            String listCQ = MsgTool.toListCQ(anyMessageEvent.getArrayMsg());
+            String listCQ = MsgTool.toListCQ(event.getArrayMsg());
             if (listCQ.contains("不可以") || listCQ.contains("!d") || listCQ.contains("！D") || listCQ.contains("！d") || listCQ.contains("!D") || listCQ.contains("/闭嘴")) {
-                User user = this.userManager.getOrCreate(anyMessageEvent);
+                User user = this.userManager.getOrCreate(event);
                 if (!user.hasPermissionLevel(2)) {
-                    bot.sendMsg(anyMessageEvent, "哼,你管得着咱吗!?", false);
+                    bot.sendMsg(event, "哼,你管得着咱吗!?", false);
                     return EventResult.PASS;
                 }
                 bot.deleteMsg(messageId);
-                bot.sendMsg(anyMessageEvent, "咱再也不乱说话了", false);
+                bot.sendMsg(event, "咱再也不乱说话了", false);
                 return EventResult.PASS;
             }
             return EventResult.PASS;
         });
-        CoreEvent.RECEIVE_ANY.register(event -> {
-            Bot bot = event.getBot();
-            AnyMessageEvent anyMessageEvent = event.getEvent();
-            List<ArrayMsg> arrayMsgList = anyMessageEvent.getArrayMsg();
+        EveryEvents.RECEIVE_ANY.register(listener -> {
+            Bot bot = listener.getBot();
+            AnyMessageEvent event = listener.getEvent();
+            List<ArrayMsg> arrayMsgList = event.getArrayMsg();
 
             if (!arrayMsgList.isEmpty()) {
                 ArrayMsg first = arrayMsgList.getFirst();
@@ -138,7 +170,7 @@ public class EssentialBot implements JPlugin {
                     JsonNode textNode = first.getData().get("text");
                     if (textNode.isString() &&
                             textNode.asString().toLowerCase().startsWith("owlpenguinparrot")) {
-                        bot.sendMsg(anyMessageEvent, "干什么", false);
+                        bot.sendMsg(event, "干什么", false);
                     }
                 }
             }
@@ -194,6 +226,8 @@ public class EssentialBot implements JPlugin {
     CommandGetWife commandGetWife;
     @Autowired
     CommandDivorce commandDivorce;
+    @Autowired
+    CommandCloudMusic commandCloudMusic;
 
     private void registerCommands() {
         this.commands.registerCommand(this.commandLeaveMessage);
@@ -220,6 +254,7 @@ public class EssentialBot implements JPlugin {
         this.commands.registerCommand(this.commandDailyWife);
         this.commands.registerCommand(this.commandGetWife);
         this.commands.registerCommand(this.commandDivorce);
+        this.commands.registerCommand(this.commandCloudMusic);
     }
 
     @Override
